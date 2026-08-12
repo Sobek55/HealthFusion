@@ -379,3 +379,18 @@
   text-decoration: none;
 }
 }
+
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  background: #fff1f1;
+  border: 1px solid #e7b4b4;
+  border-radius: 8px;
+  color: #a33a3a;
+  font-size: 0.9rem;
+}
+
+.auth-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
