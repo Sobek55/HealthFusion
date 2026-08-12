@@ -234,3 +234,148 @@
   text-decoration: none;
 }
 }
+
+.auth-page {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+  background: #f5f8f6;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 40px;
+  border-radius: 18px;
+  border: 1px solid #e2e8e4;
+  box-shadow: 0 15px 45px rgba(21, 55, 39, 0.08);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-header h1 {
+  margin: 0 0 10px;
+  color: #1c2b24;
+}
+
+.auth-header p {
+  margin: 0;
+  color: #66776e;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #35463d;
+}
+
+.form-group input {
+  padding: 13px 14px;
+  border: 1px solid #ccd7d0;
+  border-radius: 8px;
+  outline: none;
+  background: white;
+}
+
+.form-group input:focus {
+  border-color: #35a66f;
+}
+
+.name-row {
+  display: flex;
+  gap: 14px;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.form-options a,
+.auth-switch a {
+  color: #1f8a5b;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #1f8a5b;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-button:hover {
+  background: #18734b;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 25px;
+  color: #66776e;
+}
+
+@media (max-width: 600px) {
+  .name-row {
+    flex-direction: column;
+  }
+
+  .auth-card {
+    padding: 28px 22px;
+  }
+
+  .form-options {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .navbar .logo,
+.navbar .logo:visited,
+.navbar .logo:hover,
+.navbar .logo:active {
+  color: #1c2b24;
+  text-decoration: none;
+}
+
+.navbar .logo span {
+  color: #35a66f;
+}
+.navbar .login-button,
+.navbar .login-button:visited,
+.navbar .login-button:hover,
+.navbar .login-button:active {
+  color: white;
+  text-decoration: none;
+}
+}
