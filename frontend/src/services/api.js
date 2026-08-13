@@ -18,7 +18,9 @@ async function apiRequest(endpoint, options = {}) {
     try {
       data = JSON.parse(text)
     } catch {
-      throw new Error(`Server returned an invalid response (${response.status})`)
+      throw new Error(
+        `Server returned an invalid response (${response.status})`
+      )
     }
   }
 
@@ -30,6 +32,8 @@ async function apiRequest(endpoint, options = {}) {
 
   return data
 }
+
+// Authentication
 
 export function registerUser(userData) {
   return apiRequest('/auth/register', {
@@ -52,5 +56,18 @@ export function getCurrentUser() {
 export function logoutUser() {
   return apiRequest('/auth/logout', {
     method: 'POST'
+  })
+}
+
+// User Profile
+
+export function getProfile() {
+  return apiRequest('/profile')
+}
+
+export function saveProfile(profileData) {
+  return apiRequest('/profile', {
+    method: 'PUT',
+    body: JSON.stringify(profileData)
   })
 }

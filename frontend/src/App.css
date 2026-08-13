@@ -394,3 +394,60 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+.profile-card {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border: 1px solid #e2e8e4;
+  border-radius: 18px;
+  box-shadow: 0 15px 45px rgba(21, 55, 39, 0.08);
+}
+
+.profile-header {
+  margin-bottom: 30px;
+}
+
+.profile-header h1 {
+  margin: 0 0 10px;
+  color: #1c2b24;
+}
+
+.profile-header p {
+  margin: 0;
+  color: #66776e;
+  line-height: 1.6;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #ccd7d0;
+  border-radius: 8px;
+  background: white;
+  color: #1c2b24;
+  font: inherit;
+  outline: none;
+}
+
+.form-group select:focus {
+  border-color: #35a66f;
+}
+
+.profile-success {
+  margin: 0;
+  padding: 10px 12px;
+  background: #edf9f2;
+  border: 1px solid #a9dcc0;
+  border-radius: 8px;
+  color: #18734b;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 28px 22px;
+  }
+}
