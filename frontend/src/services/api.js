@@ -2,6 +2,7 @@ const API_BASE_URL = '/api'
 
 async function apiRequest(endpoint, options = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options.headers
@@ -9,10 +10,22 @@ async function apiRequest(endpoint, options = {}) {
     ...options
   })
 
-  const data = await response.json()
+  const text = await response.text()
+
+  let data = {}
+
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch {
+      throw new Error(`Server returned an invalid response (${response.status})`)
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong')
+    throw new Error(
+      data.message || `Request failed with status ${response.status}`
+    )
   }
 
   return data
@@ -29,5 +42,15 @@ export function loginUser(credentials) {
   return apiRequest('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials)
+  })
+}
+
+export function getCurrentUser() {
+  return apiRequest('/auth/me')
+}
+
+export function logoutUser() {
+  return apiRequest('/auth/logout', {
+    method: 'POST'
   })
 }
