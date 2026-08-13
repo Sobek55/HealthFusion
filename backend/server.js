@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser')
 const healthRoutes = require('./routes/healthRoutes')
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes')
+const goalsRoutes = require('./routes/goalsRoutes')
 
 const app = express()
 
@@ -19,6 +20,7 @@ app.use(cookieParser())
 app.use('/api/health', healthRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/profile', profileRoutes)
+app.use('/api/goals', goalsRoutes)
 
 // Start server
 app.listen(PORT, () => {
