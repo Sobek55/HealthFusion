@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 const register = async (req, res) => {
@@ -65,6 +66,74 @@ const register = async (req, res) => {
   }
 }
 
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      })
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+
+    const user = await User.findByEmail(normalizedEmail)
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      })
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user.password_hash
+    )
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      })
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user.user_id,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || '1h'
+      }
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: {
+        user_id: user.user_id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        created_at: user.created_at
+      }
+    })
+  } catch (error) {
+    console.error('Login error:', error)
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to log in'
+    })
+  }
+}
+
 module.exports = {
-  register
+  register,
+  login
 }
