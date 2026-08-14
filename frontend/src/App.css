@@ -451,3 +451,30 @@
     padding: 28px 22px;
   }
 }
+
+.goals-card {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border: 1px solid #e2e8e4;
+  border-radius: 18px;
+  box-shadow: 0 15px 45px rgba(21, 55, 39, 0.08);
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 700px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goals-card {
+    padding: 28px 22px;
+  }
+}

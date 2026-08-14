@@ -12,7 +12,14 @@ const User = {
 
   async findById(userId) {
     const [rows] = await pool.execute(
-      'SELECT user_id, first_name, last_name, email, created_at FROM Users WHERE user_id = ?',
+      `SELECT
+        user_id,
+        first_name,
+        last_name,
+        email,
+        created_at
+       FROM Users
+       WHERE user_id = ?`,
       [userId]
     )
 
@@ -22,7 +29,7 @@ const User = {
   async create(firstName, lastName, email, passwordHash) {
     const [result] = await pool.execute(
       `INSERT INTO Users
-       (first_name, last_name, email, password_hash)
+        (first_name, last_name, email, password_hash)
        VALUES (?, ?, ?, ?)`,
       [firstName, lastName, email, passwordHash]
     )

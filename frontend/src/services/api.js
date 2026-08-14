@@ -71,3 +71,16 @@ export function saveProfile(profileData) {
     body: JSON.stringify(profileData)
   })
 }
+
+// Nutrition Goals
+
+export function getNutritionGoals() {
+  return apiRequest('/goals')
+}
+
+export function saveNutritionGoals(goalData) {
+  return apiRequest('/goals', {
+    method: 'PUT',
+    body: JSON.stringify(goalData)
+  })
+}
