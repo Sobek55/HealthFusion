@@ -96,3 +96,12 @@ export function searchFoods(searchTerm) {
     `/foods?search=${encodeURIComponent(searchTerm)}`
   )
 }
+
+// Meals
+
+export function createMeal(mealData) {
+  return apiRequest('/meals', {
+    method: 'POST',
+    body: JSON.stringify(mealData)
+  })
+}

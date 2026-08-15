@@ -83,6 +83,45 @@ const Meal = {
     return result.insertId
   },
 
+  async createWithItems(userId, mealName, items) {
+    const connection = await pool.getConnection()
+
+    try {
+      await connection.beginTransaction()
+
+      const [mealResult] = await connection.execute(
+        `INSERT INTO Meals
+          (user_id, meal_name)
+         VALUES (?, ?)`,
+        [userId, mealName]
+      )
+
+      const mealId = mealResult.insertId
+
+      for (const item of items) {
+        await connection.execute(
+          `INSERT INTO Meal_Items
+            (meal_id, food_id, quantity)
+           VALUES (?, ?, ?)`,
+          [
+            mealId,
+            item.foodId,
+            item.quantity
+          ]
+        )
+      }
+
+      await connection.commit()
+
+      return mealId
+    } catch (error) {
+      await connection.rollback()
+      throw error
+    } finally {
+      connection.release()
+    }
+  },
+
   async addItem(mealId, foodId, quantity = 1) {
     const [result] = await pool.execute(
       `INSERT INTO Meal_Items
