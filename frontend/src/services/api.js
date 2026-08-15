@@ -84,3 +84,15 @@ export function saveNutritionGoals(goalData) {
     body: JSON.stringify(goalData)
   })
 }
+
+// Foods
+
+export function getFoods() {
+  return apiRequest('/foods')
+}
+
+export function searchFoods(searchTerm) {
+  return apiRequest(
+    `/foods?search=${encodeURIComponent(searchTerm)}`
+  )
+}

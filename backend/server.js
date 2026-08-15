@@ -7,6 +7,7 @@ const healthRoutes = require('./routes/healthRoutes')
 const authRoutes = require('./routes/authRoutes')
 const profileRoutes = require('./routes/profileRoutes')
 const goalsRoutes = require('./routes/goalsRoutes')
+const foodRoutes = require('./routes/foodRoutes')
 
 const app = express()
 
@@ -21,6 +22,7 @@ app.use('/api/health', healthRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/goals', goalsRoutes)
+app.use('/api/foods', foodRoutes)
 
 // Start server
 app.listen(PORT, () => {
