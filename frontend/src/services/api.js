@@ -26,14 +26,17 @@ async function apiRequest(endpoint, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data.message || `Request failed with status ${response.status}`
+      data.message ||
+        `Request failed with status ${response.status}`
     )
   }
 
   return data
 }
 
-// Authentication
+/*
+  Authentication
+*/
 
 export function registerUser(userData) {
   return apiRequest('/auth/register', {
@@ -59,7 +62,9 @@ export function logoutUser() {
   })
 }
 
-// User Profile
+/*
+  User Profile
+*/
 
 export function getProfile() {
   return apiRequest('/profile')
@@ -72,7 +77,9 @@ export function saveProfile(profileData) {
   })
 }
 
-// Nutrition Goals
+/*
+  Nutrition Goals
+*/
 
 export function getNutritionGoals() {
   return apiRequest('/goals')
@@ -85,7 +92,9 @@ export function saveNutritionGoals(goalData) {
   })
 }
 
-// Foods
+/*
+  Foods
+*/
 
 export function getFoods() {
   return apiRequest('/foods')
@@ -97,7 +106,9 @@ export function searchFoods(searchTerm) {
   )
 }
 
-// Meals
+/*
+  Meals
+*/
 
 export function getMeals() {
   return apiRequest('/meals')
@@ -123,6 +134,30 @@ export function updateMeal(mealId, mealData) {
 
 export function deleteMeal(mealId) {
   return apiRequest(`/meals/${mealId}`, {
+    method: 'DELETE'
+  })
+}
+
+/*
+  Meal Logs
+*/
+
+export function logMeal(mealId) {
+  return apiRequest(`/meal-logs/${mealId}`, {
+    method: 'POST'
+  })
+}
+
+export function getMealLogs() {
+  return apiRequest('/meal-logs')
+}
+
+export function getTodayMealLogs() {
+  return apiRequest('/meal-logs/today')
+}
+
+export function deleteMealLog(logId) {
+  return apiRequest(`/meal-logs/${logId}`, {
     method: 'DELETE'
   })
 }

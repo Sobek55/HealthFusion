@@ -7,21 +7,29 @@ import {
   getMeal,
   createMeal,
   updateMeal,
-  deleteMeal
+  deleteMeal,
+  logMeal,
+  getTodayMealLogs,
+  deleteMealLog
 } from '../services/api'
 
 function Meals() {
   const [mealName, setMealName] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+
   const [foods, setFoods] = useState([])
   const [mealItems, setMealItems] = useState([])
   const [savedMeals, setSavedMeals] = useState([])
+  const [todayLogs, setTodayLogs] = useState([])
 
   const [editingMealId, setEditingMealId] = useState(null)
 
   const [loadingFoods, setLoadingFoods] = useState(true)
   const [loadingMeals, setLoadingMeals] = useState(true)
+  const [loadingLogs, setLoadingLogs] = useState(true)
+
   const [saving, setSaving] = useState(false)
+  const [loggingMealId, setLoggingMealId] = useState(null)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -29,6 +37,7 @@ function Meals() {
   useEffect(() => {
     loadFoods()
     loadMeals()
+    loadTodayLogs()
   }, [])
 
   const loadFoods = async () => {
@@ -59,19 +68,36 @@ function Meals() {
     }
   }
 
+  const loadTodayLogs = async () => {
+    try {
+      setLoadingLogs(true)
+
+      const data = await getTodayMealLogs()
+
+      setTodayLogs(data.logs || [])
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setLoadingLogs(false)
+    }
+  }
+
   const handleSearch = async (event) => {
     event.preventDefault()
 
     try {
       setLoadingFoods(true)
       setError('')
+      setSuccess('')
 
       if (!searchTerm.trim()) {
         await loadFoods()
         return
       }
 
-      const data = await searchFoods(searchTerm.trim())
+      const data = await searchFoods(
+        searchTerm.trim()
+      )
 
       setFoods(data.foods || [])
     } catch (error) {
@@ -87,7 +113,8 @@ function Meals() {
 
     setMealItems((currentItems) => {
       const existingItem = currentItems.find(
-        (item) => item.food.food_id === food.food_id
+        (item) =>
+          item.food.food_id === food.food_id
       )
 
       if (existingItem) {
@@ -95,7 +122,8 @@ function Meals() {
           item.food.food_id === food.food_id
             ? {
                 ...item,
-                quantity: Number(item.quantity) + 1
+                quantity:
+                  Number(item.quantity) + 1
               }
             : item
         )
@@ -114,7 +142,10 @@ function Meals() {
   const updateQuantity = (foodId, value) => {
     const quantity = Number(value)
 
-    if (Number.isNaN(quantity) || quantity <= 0) {
+    if (
+      Number.isNaN(quantity) ||
+      quantity <= 0
+    ) {
       return
     }
 
@@ -133,7 +164,8 @@ function Meals() {
   const removeFood = (foodId) => {
     setMealItems((currentItems) =>
       currentItems.filter(
-        (item) => item.food.food_id !== foodId
+        (item) =>
+          item.food.food_id !== foodId
       )
     )
   }
@@ -141,19 +173,25 @@ function Meals() {
   const totals = useMemo(() => {
     return mealItems.reduce(
       (total, item) => {
-        const quantity = Number(item.quantity)
+        const quantity = Number(
+          item.quantity
+        )
 
         total.calories +=
-          Number(item.food.calories) * quantity
+          Number(item.food.calories) *
+          quantity
 
         total.protein +=
-          Number(item.food.protein) * quantity
+          Number(item.food.protein) *
+          quantity
 
         total.carbs +=
-          Number(item.food.carbs) * quantity
+          Number(item.food.carbs) *
+          quantity
 
         total.fat +=
-          Number(item.food.fat) * quantity
+          Number(item.food.fat) *
+          quantity
 
         return total
       },
@@ -166,6 +204,36 @@ function Meals() {
     )
   }, [mealItems])
 
+  const todayTotals = useMemo(() => {
+    return todayLogs.reduce(
+      (total, log) => {
+        total.calories += Number(
+          log.calories
+        )
+
+        total.protein += Number(
+          log.protein
+        )
+
+        total.carbs += Number(
+          log.carbs
+        )
+
+        total.fat += Number(
+          log.fat
+        )
+
+        return total
+      },
+      {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0
+      }
+    )
+  }, [todayLogs])
+
   const resetBuilder = () => {
     setMealName('')
     setMealItems([])
@@ -177,12 +245,16 @@ function Meals() {
     setSuccess('')
 
     if (!mealName.trim()) {
-      setError('Please enter a meal name.')
+      setError(
+        'Please enter a meal name.'
+      )
       return
     }
 
     if (mealItems.length === 0) {
-      setError('Add at least one food to your meal.')
+      setError(
+        'Add at least one food to your meal.'
+      )
       return
     }
 
@@ -191,7 +263,9 @@ function Meals() {
 
       items: mealItems.map((item) => ({
         foodId: item.food.food_id,
-        quantity: Number(item.quantity)
+        quantity: Number(
+          item.quantity
+        )
       }))
     }
 
@@ -204,16 +278,21 @@ function Meals() {
           mealData
         )
 
-        setSuccess('Meal updated successfully.')
+        setSuccess(
+          'Meal updated successfully.'
+        )
       } else {
         await createMeal(mealData)
 
-        setSuccess('Meal saved successfully.')
+        setSuccess(
+          'Meal saved successfully.'
+        )
       }
 
       resetBuilder()
 
       await loadMeals()
+      await loadTodayLogs()
     } catch (error) {
       setError(error.message)
     } finally {
@@ -221,7 +300,9 @@ function Meals() {
     }
   }
 
-  const handleEditMeal = async (mealId) => {
+  const handleEditMeal = async (
+    mealId
+  ) => {
     try {
       setError('')
       setSuccess('')
@@ -238,15 +319,19 @@ function Meals() {
           food: {
             food_id: item.food_id,
             name: item.name,
-            serving_size: item.serving_size,
-            serving_unit: item.serving_unit,
+            serving_size:
+              item.serving_size,
+            serving_unit:
+              item.serving_unit,
             calories: item.calories,
             protein: item.protein,
             carbs: item.carbs,
             fat: item.fat
           },
 
-          quantity: Number(item.quantity)
+          quantity: Number(
+            item.quantity
+          )
         }))
       )
 
@@ -259,7 +344,9 @@ function Meals() {
     }
   }
 
-  const handleDeleteMeal = async (mealId) => {
+  const handleDeleteMeal = async (
+    mealId
+  ) => {
     const confirmed = window.confirm(
       'Are you sure you want to delete this meal?'
     )
@@ -274,13 +361,67 @@ function Meals() {
 
       await deleteMeal(mealId)
 
-      if (editingMealId === mealId) {
+      if (
+        editingMealId === mealId
+      ) {
         resetBuilder()
       }
 
-      setSuccess('Meal deleted successfully.')
+      setSuccess(
+        'Meal deleted successfully.'
+      )
 
       await loadMeals()
+      await loadTodayLogs()
+    } catch (error) {
+      setError(error.message)
+    }
+  }
+
+  const handleLogMeal = async (
+    mealId
+  ) => {
+    try {
+      setError('')
+      setSuccess('')
+      setLoggingMealId(mealId)
+
+      await logMeal(mealId)
+
+      setSuccess(
+        'Meal logged for today.'
+      )
+
+      await loadTodayLogs()
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setLoggingMealId(null)
+    }
+  }
+
+  const handleDeleteMealLog = async (
+    logId
+  ) => {
+    const confirmed = window.confirm(
+      "Remove this meal from today's log?"
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setError('')
+      setSuccess('')
+
+      await deleteMealLog(logId)
+
+      setSuccess(
+        "Meal removed from today's log."
+      )
+
+      await loadTodayLogs()
     } catch (error) {
       setError(error.message)
     }
@@ -301,8 +442,9 @@ function Meals() {
           </h1>
 
           <p>
-            Search foods, adjust serving quantities,
-            and build meals that fit your nutrition goals.
+            Search foods, adjust serving
+            quantities, and build meals
+            that fit your nutrition goals.
           </p>
         </div>
       </section>
@@ -324,7 +466,11 @@ function Meals() {
           <div className="meal-panel-header">
             <div>
               <h2>Find Foods</h2>
-              <p>Add ingredients to your meal.</p>
+
+              <p>
+                Add ingredients to your
+                meal.
+              </p>
             </div>
           </div>
 
@@ -337,7 +483,9 @@ function Meals() {
               placeholder="Search foods..."
               value={searchTerm}
               onChange={(event) =>
-                setSearchTerm(event.target.value)
+                setSearchTerm(
+                  event.target.value
+                )
               }
             />
 
@@ -365,7 +513,9 @@ function Meals() {
                   key={food.food_id}
                 >
                   <div className="food-result-info">
-                    <h3>{food.name}</h3>
+                    <h3>
+                      {food.name}
+                    </h3>
 
                     <p>
                       {food.serving_size}{' '}
@@ -374,19 +524,31 @@ function Meals() {
 
                     <div className="food-macros">
                       <span>
-                        {Number(food.calories).toFixed(0)} cal
+                        {Number(
+                          food.calories
+                        ).toFixed(0)}{' '}
+                        cal
                       </span>
 
                       <span>
-                        {Number(food.protein).toFixed(1)}g P
+                        {Number(
+                          food.protein
+                        ).toFixed(1)}
+                        g P
                       </span>
 
                       <span>
-                        {Number(food.carbs).toFixed(1)}g C
+                        {Number(
+                          food.carbs
+                        ).toFixed(1)}
+                        g C
                       </span>
 
                       <span>
-                        {Number(food.fat).toFixed(1)}g F
+                        {Number(
+                          food.fat
+                        ).toFixed(1)}
+                        g F
                       </span>
                     </div>
                   </div>
@@ -394,7 +556,9 @@ function Meals() {
                   <button
                     type="button"
                     className="add-food-button"
-                    onClick={() => addFood(food)}
+                    onClick={() =>
+                      addFood(food)
+                    }
                   >
                     Add
                   </button>
@@ -414,7 +578,8 @@ function Meals() {
               </h2>
 
               <p>
-                Review ingredients before saving.
+                Review ingredients before
+                saving.
               </p>
             </div>
           </div>
@@ -430,7 +595,9 @@ function Meals() {
               placeholder="Example: Chicken Rice Bowl"
               value={mealName}
               onChange={(event) =>
-                setMealName(event.target.value)
+                setMealName(
+                  event.target.value
+                )
               }
             />
           </div>
@@ -438,26 +605,39 @@ function Meals() {
           <div className="selected-foods">
             {mealItems.length === 0 ? (
               <div className="empty-meal">
-                <h3>Your meal is empty</h3>
+                <h3>
+                  Your meal is empty
+                </h3>
 
                 <p>
-                  Add foods from the search panel
-                  to get started.
+                  Add foods from the
+                  search panel to get
+                  started.
                 </p>
               </div>
             ) : (
               mealItems.map((item) => (
                 <div
                   className="selected-food-card"
-                  key={item.food.food_id}
+                  key={
+                    item.food.food_id
+                  }
                 >
                   <div>
-                    <h3>{item.food.name}</h3>
+                    <h3>
+                      {item.food.name}
+                    </h3>
 
                     <p>
                       1 serving ={' '}
-                      {item.food.serving_size}{' '}
-                      {item.food.serving_unit}
+                      {
+                        item.food
+                          .serving_size
+                      }{' '}
+                      {
+                        item.food
+                          .serving_unit
+                      }
                     </p>
                   </div>
 
@@ -469,11 +649,17 @@ function Meals() {
                         type="number"
                         min="0.1"
                         step="0.1"
-                        value={item.quantity}
-                        onChange={(event) =>
+                        value={
+                          item.quantity
+                        }
+                        onChange={(
+                          event
+                        ) =>
                           updateQuantity(
-                            item.food.food_id,
-                            event.target.value
+                            item.food
+                              .food_id,
+                            event.target
+                              .value
                           )
                         }
                       />
@@ -484,7 +670,8 @@ function Meals() {
                       className="remove-food-button"
                       onClick={() =>
                         removeFood(
-                          item.food.food_id
+                          item.food
+                            .food_id
                         )
                       }
                     >
@@ -497,35 +684,60 @@ function Meals() {
           </div>
 
           <div className="meal-totals">
-            <h3>Nutrition Total</h3>
+            <h3>
+              Nutrition Total
+            </h3>
 
             <div className="meal-total-grid">
               <div>
                 <strong>
-                  {totals.calories.toFixed(0)}
+                  {totals.calories.toFixed(
+                    0
+                  )}
                 </strong>
-                <span>Calories</span>
+
+                <span>
+                  Calories
+                </span>
               </div>
 
               <div>
                 <strong>
-                  {totals.protein.toFixed(1)}g
+                  {totals.protein.toFixed(
+                    1
+                  )}
+                  g
                 </strong>
-                <span>Protein</span>
+
+                <span>
+                  Protein
+                </span>
               </div>
 
               <div>
                 <strong>
-                  {totals.carbs.toFixed(1)}g
+                  {totals.carbs.toFixed(
+                    1
+                  )}
+                  g
                 </strong>
-                <span>Carbs</span>
+
+                <span>
+                  Carbs
+                </span>
               </div>
 
               <div>
                 <strong>
-                  {totals.fat.toFixed(1)}g
+                  {totals.fat.toFixed(
+                    1
+                  )}
+                  g
                 </strong>
-                <span>Fat</span>
+
+                <span>
+                  Fat
+                </span>
               </div>
             </div>
           </div>
@@ -575,10 +787,13 @@ function Meals() {
           </p>
         ) : savedMeals.length === 0 ? (
           <div className="empty-meal">
-            <h3>No saved meals yet</h3>
+            <h3>
+              No saved meals yet
+            </h3>
 
             <p>
-              Create your first meal using the builder above.
+              Create your first meal
+              using the builder above.
             </p>
           </div>
         ) : (
@@ -589,7 +804,9 @@ function Meals() {
                 key={meal.meal_id}
               >
                 <div className="saved-meal-title">
-                  <h3>{meal.meal_name}</h3>
+                  <h3>
+                    {meal.meal_name}
+                  </h3>
 
                   <span>
                     #{meal.meal_id}
@@ -599,43 +816,83 @@ function Meals() {
                 <div className="saved-meal-macros">
                   <div>
                     <strong>
-                      {Number(meal.calories).toFixed(0)}
+                      {Number(
+                        meal.calories
+                      ).toFixed(0)}
                     </strong>
 
-                    <span>Calories</span>
+                    <span>
+                      Calories
+                    </span>
                   </div>
 
                   <div>
                     <strong>
-                      {Number(meal.protein).toFixed(1)}g
+                      {Number(
+                        meal.protein
+                      ).toFixed(1)}
+                      g
                     </strong>
 
-                    <span>Protein</span>
+                    <span>
+                      Protein
+                    </span>
                   </div>
 
                   <div>
                     <strong>
-                      {Number(meal.carbs).toFixed(1)}g
+                      {Number(
+                        meal.carbs
+                      ).toFixed(1)}
+                      g
                     </strong>
 
-                    <span>Carbs</span>
+                    <span>
+                      Carbs
+                    </span>
                   </div>
 
                   <div>
                     <strong>
-                      {Number(meal.fat).toFixed(1)}g
+                      {Number(
+                        meal.fat
+                      ).toFixed(1)}
+                      g
                     </strong>
 
-                    <span>Fat</span>
+                    <span>
+                      Fat
+                    </span>
                   </div>
                 </div>
 
                 <div className="saved-meal-actions">
                   <button
                     type="button"
+                    className="log-meal-button"
+                    onClick={() =>
+                      handleLogMeal(
+                        meal.meal_id
+                      )
+                    }
+                    disabled={
+                      loggingMealId ===
+                      meal.meal_id
+                    }
+                  >
+                    {loggingMealId ===
+                    meal.meal_id
+                      ? 'Logging...'
+                      : 'Log Meal'}
+                  </button>
+
+                  <button
+                    type="button"
                     className="edit-meal-button"
                     onClick={() =>
-                      handleEditMeal(meal.meal_id)
+                      handleEditMeal(
+                        meal.meal_id
+                      )
                     }
                   >
                     Edit
@@ -645,11 +902,202 @@ function Meals() {
                     type="button"
                     className="delete-meal-button"
                     onClick={() =>
-                      handleDeleteMeal(meal.meal_id)
+                      handleDeleteMeal(
+                        meal.meal_id
+                      )
                     }
                   >
                     Delete
                   </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="today-meals-section">
+        <div className="today-meals-header">
+          <div>
+            <p className="tagline">
+              TODAY
+            </p>
+
+            <h2>
+              Today's Meals
+            </h2>
+
+            <p>
+              Meals you've logged
+              today.
+            </p>
+          </div>
+        </div>
+
+        {!loadingLogs &&
+          todayLogs.length > 0 && (
+            <div className="today-summary">
+              <div>
+                <strong>
+                  {todayTotals.calories.toFixed(
+                    0
+                  )}
+                </strong>
+
+                <span>
+                  Calories
+                </span>
+              </div>
+
+              <div>
+                <strong>
+                  {todayTotals.protein.toFixed(
+                    1
+                  )}
+                  g
+                </strong>
+
+                <span>
+                  Protein
+                </span>
+              </div>
+
+              <div>
+                <strong>
+                  {todayTotals.carbs.toFixed(
+                    1
+                  )}
+                  g
+                </strong>
+
+                <span>
+                  Carbs
+                </span>
+              </div>
+
+              <div>
+                <strong>
+                  {todayTotals.fat.toFixed(
+                    1
+                  )}
+                  g
+                </strong>
+
+                <span>
+                  Fat
+                </span>
+              </div>
+            </div>
+          )}
+
+        {loadingLogs ? (
+          <p className="empty-message">
+            Loading today's meals...
+          </p>
+        ) : todayLogs.length === 0 ? (
+          <div className="empty-meal">
+            <h3>
+              No meals logged today
+            </h3>
+
+            <p>
+              Use the Log Meal button
+              on one of your saved
+              meals.
+            </p>
+          </div>
+        ) : (
+          <div className="today-meals-grid">
+            {todayLogs.map((log) => (
+              <article
+                className="today-meal-card"
+                key={log.log_id}
+              >
+                <div className="today-meal-title">
+                  <div>
+                    <h3>
+                      {log.meal_name}
+                    </h3>
+
+                    <p>
+                      {new Date(
+                        log.logged_at
+                      ).toLocaleTimeString(
+                        [],
+                        {
+                          hour:
+                            'numeric',
+                          minute:
+                            '2-digit'
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="remove-log-button"
+                    onClick={() =>
+                      handleDeleteMealLog(
+                        log.log_id
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div className="saved-meal-macros">
+                  <div>
+                    <strong>
+                      {Number(
+                        log.calories
+                      ).toFixed(0)}
+                    </strong>
+
+                    <span>
+                      Calories
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(
+                        log.protein
+                      ).toFixed(1)}
+                      g
+                    </strong>
+
+                    <span>
+                      Protein
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(
+                        log.carbs
+                      ).toFixed(1)}
+                      g
+                    </strong>
+
+                    <span>
+                      Carbs
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(
+                        log.fat
+                      ).toFixed(1)}
+                      g
+                    </strong>
+
+                    <span>
+                      Fat
+                    </span>
+                  </div>
                 </div>
               </article>
             ))}
