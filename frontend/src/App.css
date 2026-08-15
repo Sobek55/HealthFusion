@@ -781,3 +781,137 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Saved Meals */
+
+.saved-meals-section {
+  max-width: 1200px;
+  margin: 55px auto 0;
+}
+
+.saved-meals-header {
+  margin-bottom: 22px;
+}
+
+.saved-meals-header h2 {
+  margin: 6px 0 0;
+  font-size: 2rem;
+  color: #1c2b24;
+}
+
+.saved-meals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.saved-meal-card {
+  background: white;
+  padding: 24px;
+  border: 1px solid #e2e8e4;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(21, 55, 39, 0.05);
+}
+
+.saved-meal-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.saved-meal-title h3 {
+  margin: 0;
+  color: #1c2b24;
+}
+
+.saved-meal-title span {
+  color: #8a9890;
+  font-size: 0.8rem;
+}
+
+.saved-meal-macros {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 22px 0;
+}
+
+.saved-meal-macros div {
+  background: #f5f8f6;
+  padding: 10px 6px;
+  border-radius: 9px;
+  text-align: center;
+}
+
+.saved-meal-macros strong {
+  display: block;
+  color: #1c2b24;
+}
+
+.saved-meal-macros span {
+  display: block;
+  margin-top: 4px;
+  color: #7b8982;
+  font-size: 0.72rem;
+}
+
+.saved-meal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-meal-button,
+.delete-meal-button,
+.cancel-edit-button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-meal-button {
+  flex: 1;
+  background: #e6f5ed;
+  border: 1px solid #b9dfca;
+  color: #18734b;
+}
+
+.delete-meal-button {
+  flex: 1;
+  background: white;
+  border: 1px solid #e1b1b1;
+  color: #a32626;
+}
+
+.cancel-edit-button {
+  width: 100%;
+  margin-top: 10px;
+  background: white;
+  border: 1px solid #ccd7d0;
+  color: #53645b;
+}
+
+.edit-meal-button:hover {
+  background: #d5eee1;
+}
+
+.delete-meal-button:hover {
+  background: #fff1f1;
+}
+
+.cancel-edit-button:hover {
+  background: #f5f8f6;
+}
+
+@media (max-width: 800px) {
+  .saved-meals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .saved-meal-macros {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

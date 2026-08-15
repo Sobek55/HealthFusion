@@ -99,9 +99,30 @@ export function searchFoods(searchTerm) {
 
 // Meals
 
+export function getMeals() {
+  return apiRequest('/meals')
+}
+
+export function getMeal(mealId) {
+  return apiRequest(`/meals/${mealId}`)
+}
+
 export function createMeal(mealData) {
   return apiRequest('/meals', {
     method: 'POST',
     body: JSON.stringify(mealData)
+  })
+}
+
+export function updateMeal(mealId, mealData) {
+  return apiRequest(`/meals/${mealId}`, {
+    method: 'PUT',
+    body: JSON.stringify(mealData)
+  })
+}
+
+export function deleteMeal(mealId) {
+  return apiRequest(`/meals/${mealId}`, {
+    method: 'DELETE'
   })
 }

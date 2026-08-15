@@ -122,12 +122,74 @@ const Meal = {
     }
   },
 
+  async updateWithItems(
+    userId,
+    mealId,
+    mealName,
+    items
+  ) {
+    const connection = await pool.getConnection()
+
+    try {
+      await connection.beginTransaction()
+
+      const [mealResult] = await connection.execute(
+        `UPDATE Meals
+         SET meal_name = ?
+         WHERE meal_id = ?
+         AND user_id = ?`,
+        [
+          mealName,
+          mealId,
+          userId
+        ]
+      )
+
+      if (mealResult.affectedRows === 0) {
+        await connection.rollback()
+        return false
+      }
+
+      await connection.execute(
+        `DELETE FROM Meal_Items
+         WHERE meal_id = ?`,
+        [mealId]
+      )
+
+      for (const item of items) {
+        await connection.execute(
+          `INSERT INTO Meal_Items
+            (meal_id, food_id, quantity)
+           VALUES (?, ?, ?)`,
+          [
+            mealId,
+            item.foodId,
+            item.quantity
+          ]
+        )
+      }
+
+      await connection.commit()
+
+      return true
+    } catch (error) {
+      await connection.rollback()
+      throw error
+    } finally {
+      connection.release()
+    }
+  },
+
   async addItem(mealId, foodId, quantity = 1) {
     const [result] = await pool.execute(
       `INSERT INTO Meal_Items
         (meal_id, food_id, quantity)
        VALUES (?, ?, ?)`,
-      [mealId, foodId, quantity]
+      [
+        mealId,
+        foodId,
+        quantity
+      ]
     )
 
     return result.insertId
@@ -138,7 +200,10 @@ const Meal = {
       `UPDATE Meal_Items
        SET quantity = ?
        WHERE meal_item_id = ?`,
-      [quantity, mealItemId]
+      [
+        quantity,
+        mealItemId
+      ]
     )
 
     return result.affectedRows
@@ -160,7 +225,11 @@ const Meal = {
        SET meal_name = ?
        WHERE meal_id = ?
        AND user_id = ?`,
-      [mealName, mealId, userId]
+      [
+        mealName,
+        mealId,
+        userId
+      ]
     )
 
     return result.affectedRows
@@ -171,7 +240,10 @@ const Meal = {
       `DELETE FROM Meals
        WHERE meal_id = ?
        AND user_id = ?`,
-      [mealId, userId]
+      [
+        mealId,
+        userId
+      ]
     )
 
     return result.affectedRows

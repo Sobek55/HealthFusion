@@ -3,7 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   getFoods,
   searchFoods,
-  createMeal
+  getMeals,
+  getMeal,
+  createMeal,
+  updateMeal,
+  deleteMeal
 } from '../services/api'
 
 function Meals() {
@@ -11,8 +15,12 @@ function Meals() {
   const [searchTerm, setSearchTerm] = useState('')
   const [foods, setFoods] = useState([])
   const [mealItems, setMealItems] = useState([])
+  const [savedMeals, setSavedMeals] = useState([])
+
+  const [editingMealId, setEditingMealId] = useState(null)
 
   const [loadingFoods, setLoadingFoods] = useState(true)
+  const [loadingMeals, setLoadingMeals] = useState(true)
   const [saving, setSaving] = useState(false)
 
   const [error, setError] = useState('')
@@ -20,12 +28,12 @@ function Meals() {
 
   useEffect(() => {
     loadFoods()
+    loadMeals()
   }, [])
 
   const loadFoods = async () => {
     try {
       setLoadingFoods(true)
-      setError('')
 
       const data = await getFoods()
 
@@ -34,6 +42,20 @@ function Meals() {
       setError(error.message)
     } finally {
       setLoadingFoods(false)
+    }
+  }
+
+  const loadMeals = async () => {
+    try {
+      setLoadingMeals(true)
+
+      const data = await getMeals()
+
+      setSavedMeals(data.meals || [])
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setLoadingMeals(false)
     }
   }
 
@@ -60,8 +82,8 @@ function Meals() {
   }
 
   const addFood = (food) => {
-    setSuccess('')
     setError('')
+    setSuccess('')
 
     setMealItems((currentItems) => {
       const existingItem = currentItems.find(
@@ -73,7 +95,7 @@ function Meals() {
           item.food.food_id === food.food_id
             ? {
                 ...item,
-                quantity: item.quantity + 1
+                quantity: Number(item.quantity) + 1
               }
             : item
         )
@@ -144,6 +166,12 @@ function Meals() {
     )
   }, [mealItems])
 
+  const resetBuilder = () => {
+    setMealName('')
+    setMealItems([])
+    setEditingMealId(null)
+  }
+
   const handleSaveMeal = async () => {
     setError('')
     setSuccess('')
@@ -158,20 +186,34 @@ function Meals() {
       return
     }
 
+    const mealData = {
+      mealName: mealName.trim(),
+
+      items: mealItems.map((item) => ({
+        foodId: item.food.food_id,
+        quantity: Number(item.quantity)
+      }))
+    }
+
     try {
       setSaving(true)
 
-      await createMeal({
-        mealName: mealName.trim(),
-        items: mealItems.map((item) => ({
-          foodId: item.food.food_id,
-          quantity: Number(item.quantity)
-        }))
-      })
+      if (editingMealId) {
+        await updateMeal(
+          editingMealId,
+          mealData
+        )
 
-      setSuccess('Meal saved successfully.')
-      setMealName('')
-      setMealItems([])
+        setSuccess('Meal updated successfully.')
+      } else {
+        await createMeal(mealData)
+
+        setSuccess('Meal saved successfully.')
+      }
+
+      resetBuilder()
+
+      await loadMeals()
     } catch (error) {
       setError(error.message)
     } finally {
@@ -179,15 +221,88 @@ function Meals() {
     }
   }
 
+  const handleEditMeal = async (mealId) => {
+    try {
+      setError('')
+      setSuccess('')
+
+      const data = await getMeal(mealId)
+
+      const meal = data.meal
+
+      setEditingMealId(meal.meal_id)
+      setMealName(meal.meal_name)
+
+      setMealItems(
+        meal.items.map((item) => ({
+          food: {
+            food_id: item.food_id,
+            name: item.name,
+            serving_size: item.serving_size,
+            serving_unit: item.serving_unit,
+            calories: item.calories,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fat
+          },
+
+          quantity: Number(item.quantity)
+        }))
+      )
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
+    } catch (error) {
+      setError(error.message)
+    }
+  }
+
+  const handleDeleteMeal = async (mealId) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this meal?'
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setError('')
+      setSuccess('')
+
+      await deleteMeal(mealId)
+
+      if (editingMealId === mealId) {
+        resetBuilder()
+      }
+
+      setSuccess('Meal deleted successfully.')
+
+      await loadMeals()
+    } catch (error) {
+      setError(error.message)
+    }
+  }
+
   return (
     <main className="meal-builder-page">
       <section className="meal-builder-header">
         <div>
-          <p className="tagline">MEAL BUILDER</p>
-          <h1>Create Your Meal</h1>
+          <p className="tagline">
+            MEAL BUILDER
+          </p>
+
+          <h1>
+            {editingMealId
+              ? 'Edit Your Meal'
+              : 'Create Your Meal'}
+          </h1>
+
           <p>
-            Search foods, adjust serving quantities, and build a
-            meal that fits your nutrition goals.
+            Search foods, adjust serving quantities,
+            and build meals that fit your nutrition goals.
           </p>
         </div>
       </section>
@@ -292,8 +407,15 @@ function Meals() {
         <section className="current-meal-panel">
           <div className="meal-panel-header">
             <div>
-              <h2>Your Meal</h2>
-              <p>Review ingredients before saving.</p>
+              <h2>
+                {editingMealId
+                  ? 'Editing Meal'
+                  : 'Your Meal'}
+              </h2>
+
+              <p>
+                Review ingredients before saving.
+              </p>
             </div>
           </div>
 
@@ -317,8 +439,10 @@ function Meals() {
             {mealItems.length === 0 ? (
               <div className="empty-meal">
                 <h3>Your meal is empty</h3>
+
                 <p>
-                  Add foods from the search panel to get started.
+                  Add foods from the search panel
+                  to get started.
                 </p>
               </div>
             ) : (
@@ -359,7 +483,9 @@ function Meals() {
                       type="button"
                       className="remove-food-button"
                       onClick={() =>
-                        removeFood(item.food.food_id)
+                        removeFood(
+                          item.food.food_id
+                        )
                       }
                     >
                       Remove
@@ -413,10 +539,123 @@ function Meals() {
               mealItems.length === 0
             }
           >
-            {saving ? 'Saving Meal...' : 'Save Meal'}
+            {saving
+              ? 'Saving...'
+              : editingMealId
+                ? 'Update Meal'
+                : 'Save Meal'}
           </button>
+
+          {editingMealId && (
+            <button
+              type="button"
+              className="cancel-edit-button"
+              onClick={resetBuilder}
+            >
+              Cancel Editing
+            </button>
+          )}
         </section>
       </div>
+
+      <section className="saved-meals-section">
+        <div className="saved-meals-header">
+          <div>
+            <p className="tagline">
+              SAVED MEALS
+            </p>
+
+            <h2>Your Meals</h2>
+          </div>
+        </div>
+
+        {loadingMeals ? (
+          <p className="empty-message">
+            Loading meals...
+          </p>
+        ) : savedMeals.length === 0 ? (
+          <div className="empty-meal">
+            <h3>No saved meals yet</h3>
+
+            <p>
+              Create your first meal using the builder above.
+            </p>
+          </div>
+        ) : (
+          <div className="saved-meals-grid">
+            {savedMeals.map((meal) => (
+              <article
+                className="saved-meal-card"
+                key={meal.meal_id}
+              >
+                <div className="saved-meal-title">
+                  <h3>{meal.meal_name}</h3>
+
+                  <span>
+                    #{meal.meal_id}
+                  </span>
+                </div>
+
+                <div className="saved-meal-macros">
+                  <div>
+                    <strong>
+                      {Number(meal.calories).toFixed(0)}
+                    </strong>
+
+                    <span>Calories</span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(meal.protein).toFixed(1)}g
+                    </strong>
+
+                    <span>Protein</span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(meal.carbs).toFixed(1)}g
+                    </strong>
+
+                    <span>Carbs</span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {Number(meal.fat).toFixed(1)}g
+                    </strong>
+
+                    <span>Fat</span>
+                  </div>
+                </div>
+
+                <div className="saved-meal-actions">
+                  <button
+                    type="button"
+                    className="edit-meal-button"
+                    onClick={() =>
+                      handleEditMeal(meal.meal_id)
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="delete-meal-button"
+                    onClick={() =>
+                      handleDeleteMeal(meal.meal_id)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   )
 }
