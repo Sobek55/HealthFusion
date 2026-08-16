@@ -19,7 +19,11 @@ const MealLog = {
         ml.user_id,
         ml.meal_id,
         ml.logged_at,
-        m.meal_name
+        m.meal_name,
+        m.meal_type,
+        m.meal_date,
+        m.serving_size,
+        m.serving_unit
        FROM Meal_Logs ml
        JOIN Meals m
          ON ml.meal_id = m.meal_id
@@ -38,23 +42,82 @@ const MealLog = {
         ml.meal_id,
         ml.logged_at,
         m.meal_name,
-        COALESCE(SUM(f.calories * mi.quantity), 0) AS calories,
-        COALESCE(SUM(f.protein * mi.quantity), 0) AS protein,
-        COALESCE(SUM(f.carbs * mi.quantity), 0) AS carbs,
-        COALESCE(SUM(f.fat * mi.quantity), 0) AS fat
+        m.meal_type,
+        m.meal_date,
+        m.serving_size,
+        m.serving_unit,
+
+        CASE
+          WHEN m.calories IS NOT NULL
+            THEN m.calories
+          ELSE COALESCE(
+            SUM(
+              f.calories * mi.quantity
+            ),
+            0
+          )
+        END AS calories,
+
+        CASE
+          WHEN m.protein IS NOT NULL
+            THEN m.protein
+          ELSE COALESCE(
+            SUM(
+              f.protein * mi.quantity
+            ),
+            0
+          )
+        END AS protein,
+
+        CASE
+          WHEN m.carbs IS NOT NULL
+            THEN m.carbs
+          ELSE COALESCE(
+            SUM(
+              f.carbs * mi.quantity
+            ),
+            0
+          )
+        END AS carbs,
+
+        CASE
+          WHEN m.fat IS NOT NULL
+            THEN m.fat
+          ELSE COALESCE(
+            SUM(
+              f.fat * mi.quantity
+            ),
+            0
+          )
+        END AS fat
+
        FROM Meal_Logs ml
+
        JOIN Meals m
          ON ml.meal_id = m.meal_id
+
        LEFT JOIN Meal_Items mi
          ON m.meal_id = mi.meal_id
+
        LEFT JOIN Foods f
          ON mi.food_id = f.food_id
+
        WHERE ml.user_id = ?
+
        GROUP BY
          ml.log_id,
          ml.meal_id,
          ml.logged_at,
-         m.meal_name
+         m.meal_name,
+         m.meal_type,
+         m.meal_date,
+         m.serving_size,
+         m.serving_unit,
+         m.calories,
+         m.protein,
+         m.carbs,
+         m.fat
+
        ORDER BY ml.logged_at DESC`,
       [userId]
     )
@@ -69,24 +132,83 @@ const MealLog = {
         ml.meal_id,
         ml.logged_at,
         m.meal_name,
-        COALESCE(SUM(f.calories * mi.quantity), 0) AS calories,
-        COALESCE(SUM(f.protein * mi.quantity), 0) AS protein,
-        COALESCE(SUM(f.carbs * mi.quantity), 0) AS carbs,
-        COALESCE(SUM(f.fat * mi.quantity), 0) AS fat
+        m.meal_type,
+        m.meal_date,
+        m.serving_size,
+        m.serving_unit,
+
+        CASE
+          WHEN m.calories IS NOT NULL
+            THEN m.calories
+          ELSE COALESCE(
+            SUM(
+              f.calories * mi.quantity
+            ),
+            0
+          )
+        END AS calories,
+
+        CASE
+          WHEN m.protein IS NOT NULL
+            THEN m.protein
+          ELSE COALESCE(
+            SUM(
+              f.protein * mi.quantity
+            ),
+            0
+          )
+        END AS protein,
+
+        CASE
+          WHEN m.carbs IS NOT NULL
+            THEN m.carbs
+          ELSE COALESCE(
+            SUM(
+              f.carbs * mi.quantity
+            ),
+            0
+          )
+        END AS carbs,
+
+        CASE
+          WHEN m.fat IS NOT NULL
+            THEN m.fat
+          ELSE COALESCE(
+            SUM(
+              f.fat * mi.quantity
+            ),
+            0
+          )
+        END AS fat
+
        FROM Meal_Logs ml
+
        JOIN Meals m
          ON ml.meal_id = m.meal_id
+
        LEFT JOIN Meal_Items mi
          ON m.meal_id = mi.meal_id
+
        LEFT JOIN Foods f
          ON mi.food_id = f.food_id
+
        WHERE ml.user_id = ?
        AND DATE(ml.logged_at) = CURDATE()
+
        GROUP BY
          ml.log_id,
          ml.meal_id,
          ml.logged_at,
-         m.meal_name
+         m.meal_name,
+         m.meal_type,
+         m.meal_date,
+         m.serving_size,
+         m.serving_unit,
+         m.calories,
+         m.protein,
+         m.carbs,
+         m.fat
+
        ORDER BY ml.logged_at DESC`,
       [userId]
     )

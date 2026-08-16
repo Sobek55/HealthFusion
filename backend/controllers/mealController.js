@@ -1,135 +1,441 @@
 const Meal = require('../models/Meal')
 const Food = require('../models/Food')
 
+const mealTypes = [
+  'Breakfast',
+  'Lunch',
+  'Dinner',
+  'Snack'
+]
+
 const validateItems = async (items) => {
-  if (!Array.isArray(items) || items.length === 0) {
-    return 'A meal must contain at least one food'
+  if (
+    !Array.isArray(items) ||
+    items.length === 0
+  ) {
+    return (
+      'A meal must contain at least one food'
+    )
   }
 
   for (const item of items) {
-    const foodId = Number(item.foodId)
-    const quantity = Number(item.quantity)
+    const foodId =
+      Number(item.foodId)
+
+    const quantity =
+      Number(item.quantity)
 
     if (
       !Number.isInteger(foodId) ||
       foodId <= 0
     ) {
-      return 'Every meal item requires a valid food'
+      return (
+        'Every meal item requires a valid food'
+      )
     }
 
     if (
       !Number.isFinite(quantity) ||
       quantity <= 0
     ) {
-      return 'Every meal item requires a valid quantity greater than zero'
+      return (
+        'Every meal item requires a valid quantity greater than zero'
+      )
     }
 
-    const food = await Food.findById(foodId)
+    const food =
+      await Food.findById(foodId)
 
     if (!food) {
-      return `Food ${foodId} was not found`
+      return (
+        `Food ${foodId} was not found`
+      )
     }
   }
 
   return null
 }
 
-const getMeals = async (req, res) => {
-  try {
-    const meals = await Meal.findAllByUser(
-      req.user.userId
+const validateMealBasics = (
+  mealName,
+  mealType,
+  mealDate
+) => {
+  if (
+    !mealName ||
+    !mealName.trim()
+  ) {
+    return 'Meal name is required'
+  }
+
+  if (
+    !mealTypes.includes(mealType)
+  ) {
+    return (
+      'Meal type must be Breakfast, Lunch, Dinner, or Snack'
     )
+  }
+
+  if (!mealDate) {
+    return 'Meal date is required'
+  }
+
+  const datePattern =
+    /^\d{4}-\d{2}-\d{2}$/
+
+  if (!datePattern.test(mealDate)) {
+    return (
+      'Meal date must use YYYY-MM-DD format'
+    )
+  }
+
+  return null
+}
+
+const validateManualMeal = (
+  servingSize,
+  calories,
+  protein,
+  carbs,
+  fat
+) => {
+  const numericServingSize =
+    Number(servingSize)
+
+  if (
+    !Number.isFinite(
+      numericServingSize
+    ) ||
+    numericServingSize <= 0
+  ) {
+    return (
+      'Serving size must be greater than zero'
+    )
+  }
+
+  const nutrients = {
+    Calories: calories,
+    Protein: protein,
+    Carbohydrates: carbs,
+    Fat: fat
+  }
+
+  for (
+    const [name, value]
+    of Object.entries(nutrients)
+  ) {
+    if (
+      value === '' ||
+      value === null ||
+      value === undefined
+    ) {
+      return `${name} is required`
+    }
+
+    const numericValue =
+      Number(value)
+
+    if (
+      !Number.isFinite(
+        numericValue
+      ) ||
+      numericValue < 0
+    ) {
+      return (
+        `${name} cannot be negative`
+      )
+    }
+  }
+
+  return null
+}
+
+const getMeals = async (
+  req,
+  res
+) => {
+  try {
+    const meals =
+      await Meal.findAllByUser(
+        req.user.userId
+      )
 
     return res.status(200).json({
       success: true,
       meals
     })
   } catch (error) {
-    console.error('Get meals error:', error)
+    console.error(
+      'Get meals error:',
+      error
+    )
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to retrieve meals'
+      message:
+        'Unable to retrieve meals'
     })
   }
 }
 
-const createMeal = async (req, res) => {
+const createMeal = async (
+  req,
+  res
+) => {
   try {
-    const userId = req.user.userId
-    const { mealName, items } = req.body
+    const userId =
+      req.user.userId
 
-    if (!mealName || !mealName.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Meal name is required'
-      })
-    }
-
-    const itemError = await validateItems(items)
-
-    if (itemError) {
-      return res.status(400).json({
-        success: false,
-        message: itemError
-      })
-    }
-
-    const mealId = await Meal.createWithItems(
-      userId,
-      mealName.trim(),
+    const {
+      entryMode = 'builder',
+      mealName,
+      mealType,
+      mealDate,
+      servingSize,
+      servingUnit,
+      calories,
+      protein,
+      carbs,
+      fat,
       items
-    )
+    } = req.body
 
-    const meal = await Meal.findById(
-      mealId,
-      userId
-    )
+    const basicError =
+      validateMealBasics(
+        mealName,
+        mealType,
+        mealDate
+      )
+
+    if (basicError) {
+      return res.status(400).json({
+        success: false,
+        message: basicError
+      })
+    }
+
+    let mealId
+
+    if (entryMode === 'manual') {
+      const manualError =
+        validateManualMeal(
+          servingSize,
+          calories,
+          protein,
+          carbs,
+          fat
+        )
+
+      if (manualError) {
+        return res.status(400).json({
+          success: false,
+          message: manualError
+        })
+      }
+
+      mealId =
+        await Meal.createManual(
+          userId,
+          {
+            mealName:
+              mealName.trim(),
+
+            mealType,
+            mealDate,
+
+            servingSize:
+              Number(servingSize),
+
+            servingUnit:
+              servingUnit?.trim() ||
+              'serving',
+
+            calories:
+              Number(calories),
+
+            protein:
+              Number(protein),
+
+            carbs:
+              Number(carbs),
+
+            fat:
+              Number(fat)
+          }
+        )
+    } else if (
+      entryMode === 'builder'
+    ) {
+      const itemError =
+        await validateItems(items)
+
+      if (itemError) {
+        return res.status(400).json({
+          success: false,
+          message: itemError
+        })
+      }
+
+      mealId =
+        await Meal.createWithItems(
+          userId,
+          mealName.trim(),
+          mealType,
+          mealDate,
+          items
+        )
+    } else {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Invalid meal entry mode'
+      })
+    }
+
+    const meal =
+      await Meal.findById(
+        mealId,
+        userId
+      )
 
     return res.status(201).json({
       success: true,
-      message: 'Meal created successfully',
+      message:
+        'Meal created successfully',
       meal
     })
   } catch (error) {
-    console.error('Meal creation error:', error)
+    console.error(
+      'Meal creation error:',
+      error
+    )
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to create meal'
+      message:
+        'Unable to create meal'
     })
   }
 }
 
-const updateMeal = async (req, res) => {
+const updateMeal = async (
+  req,
+  res
+) => {
   try {
-    const userId = req.user.userId
-    const mealId = Number(req.params.mealId)
+    const userId =
+      req.user.userId
 
-    const { mealName, items } = req.body
+    const mealId =
+      Number(req.params.mealId)
 
-    if (!mealName || !mealName.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Meal name is required'
-      })
-    }
-
-    const itemError = await validateItems(items)
-
-    if (itemError) {
-      return res.status(400).json({
-        success: false,
-        message: itemError
-      })
-    }
-
-    const updated = await Meal.updateWithItems(
-      userId,
-      mealId,
-      mealName.trim(),
+    const {
+      entryMode = 'builder',
+      mealName,
+      mealType,
+      mealDate,
+      servingSize,
+      servingUnit,
+      calories,
+      protein,
+      carbs,
+      fat,
       items
-    )
+    } = req.body
+
+    const basicError =
+      validateMealBasics(
+        mealName,
+        mealType,
+        mealDate
+      )
+
+    if (basicError) {
+      return res.status(400).json({
+        success: false,
+        message: basicError
+      })
+    }
+
+    let updated
+
+    if (entryMode === 'manual') {
+      const manualError =
+        validateManualMeal(
+          servingSize,
+          calories,
+          protein,
+          carbs,
+          fat
+        )
+
+      if (manualError) {
+        return res.status(400).json({
+          success: false,
+          message: manualError
+        })
+      }
+
+      updated =
+        await Meal.updateManual(
+          userId,
+          mealId,
+          {
+            mealName:
+              mealName.trim(),
+
+            mealType,
+            mealDate,
+
+            servingSize:
+              Number(servingSize),
+
+            servingUnit:
+              servingUnit?.trim() ||
+              'serving',
+
+            calories:
+              Number(calories),
+
+            protein:
+              Number(protein),
+
+            carbs:
+              Number(carbs),
+
+            fat:
+              Number(fat)
+          }
+        )
+    } else if (
+      entryMode === 'builder'
+    ) {
+      const itemError =
+        await validateItems(items)
+
+      if (itemError) {
+        return res.status(400).json({
+          success: false,
+          message: itemError
+        })
+      }
+
+      updated =
+        await Meal.updateWithItems(
+          userId,
+          mealId,
+          mealName.trim(),
+          mealType,
+          mealDate,
+          items
+        )
+    } else {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Invalid meal entry mode'
+      })
+    }
 
     if (!updated) {
       return res.status(404).json({
@@ -138,71 +444,98 @@ const updateMeal = async (req, res) => {
       })
     }
 
-    const meal = await Meal.findById(
-      mealId,
-      userId
-    )
+    const meal =
+      await Meal.findById(
+        mealId,
+        userId
+      )
 
     return res.status(200).json({
       success: true,
-      message: 'Meal updated successfully',
+      message:
+        'Meal updated successfully',
       meal
     })
   } catch (error) {
-    console.error('Meal update error:', error)
+    console.error(
+      'Meal update error:',
+      error
+    )
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to update meal'
+      message:
+        'Unable to update meal'
     })
   }
 }
 
-const deleteMeal = async (req, res) => {
+const deleteMeal = async (
+  req,
+  res
+) => {
   try {
-    const userId = req.user.userId
-    const mealId = Number(req.params.mealId)
+    const userId =
+      req.user.userId
 
-    const deleted = await Meal.delete(
-      mealId,
-      userId
-    )
+    const mealId =
+      Number(req.params.mealId)
+
+    const deleted =
+      await Meal.delete(
+        mealId,
+        userId
+      )
 
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        message: 'Meal not found'
+        message:
+          'Meal not found'
       })
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Meal deleted successfully'
+      message:
+        'Meal deleted successfully'
     })
   } catch (error) {
-    console.error('Meal deletion error:', error)
+    console.error(
+      'Meal deletion error:',
+      error
+    )
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to delete meal'
+      message:
+        'Unable to delete meal'
     })
   }
 }
 
-const getMeal = async (req, res) => {
+const getMeal = async (
+  req,
+  res
+) => {
   try {
-    const userId = req.user.userId
-    const mealId = Number(req.params.mealId)
+    const userId =
+      req.user.userId
 
-    const meal = await Meal.findById(
-      mealId,
-      userId
-    )
+    const mealId =
+      Number(req.params.mealId)
+
+    const meal =
+      await Meal.findById(
+        mealId,
+        userId
+      )
 
     if (!meal) {
       return res.status(404).json({
         success: false,
-        message: 'Meal not found'
+        message:
+          'Meal not found'
       })
     }
 
@@ -211,11 +544,15 @@ const getMeal = async (req, res) => {
       meal
     })
   } catch (error) {
-    console.error('Get meal error:', error)
+    console.error(
+      'Get meal error:',
+      error
+    )
 
     return res.status(500).json({
       success: false,
-      message: 'Unable to retrieve meal'
+      message:
+        'Unable to retrieve meal'
     })
   }
 }

@@ -55,8 +55,15 @@ CREATE TABLE Meals (
     meal_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     meal_name VARCHAR(150) NOT NULL,
+    meal_type VARCHAR(20),
+    meal_date DATE,
+    serving_size DECIMAL(8,2),
+    serving_unit VARCHAR(30),
+    calories DECIMAL(8,2),
+    protein DECIMAL(8,2),
+    carbs DECIMAL(8,2),
+    fat DECIMAL(8,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (user_id)
         REFERENCES Users(user_id)
         ON DELETE CASCADE
