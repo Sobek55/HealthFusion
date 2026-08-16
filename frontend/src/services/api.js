@@ -38,6 +38,24 @@ async function apiRequest(endpoint, options = {}) {
   Authentication
 */
 
+export function registerUser(userData) {
+  return apiRequest('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData)
+  })
+}
+
+export function loginUser(credentials) {
+  return apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  })
+}
+
+export function getCurrentUser() {
+  return apiRequest('/auth/me')
+}
+
 export function logoutUser() {
   return apiRequest('/auth/logout', {
     method: 'POST'
@@ -142,56 +160,4 @@ export function deleteMealLog(logId) {
   return apiRequest(`/meal-logs/${logId}`, {
     method: 'DELETE'
   })
-}
-
-export const registerUser = async (userData) => {
-  const response = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(userData)
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Registration failed')
-  }
-
-  return data
-}
-
-export const loginUser = async (credentials) => {
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(credentials)
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Login failed')
-  }
-
-  return data
-}
-
-export const getCurrentUser = async (token) => {
-  const response = await fetch('/api/auth/me', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Unable to retrieve user')
-  }
-
-  return data
 }

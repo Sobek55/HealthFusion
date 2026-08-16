@@ -1,23 +1,34 @@
-import {
-  Link,
-  useLocation,
-  useNavigate
-} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { getCurrentUser, logoutUser } from '../services/api'
 
 function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // useLocation makes the component update when the route changes
-  // so we can re-check whether a token exists after login
-  const isLoggedIn = Boolean(localStorage.getItem('token'))
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        await getCurrentUser()
+        setIsLoggedIn(true)
+      } catch {
+        setIsLoggedIn(false)
+      }
+    }
 
-    navigate('/login', {
-      replace: true
-    })
+    checkAuthentication()
+  }, [location])
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser()
+      setIsLoggedIn(false)
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (
@@ -27,22 +38,15 @@ function Navbar() {
       </Link>
 
       <nav>
-        <Link to="/">Home</Link>
-
-        {isLoggedIn && (
-          <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/meals">Meals</Link>
-            <Link to="/goals">Goals</Link>
-            <Link to="/profile">Profile</Link>
-          </>
-        )}
+        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/meals">Meals</Link>
+        <Link to="/goals">Goals</Link>
+        <Link to="/profile">Profile</Link>
       </nav>
 
       {isLoggedIn ? (
         <button
-          type="button"
-          className="logout-button"
+          className="login-button"
           onClick={handleLogout}
         >
           Log Out
