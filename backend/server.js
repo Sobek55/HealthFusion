@@ -11,6 +11,10 @@ const foodRoutes = require('./routes/foodRoutes')
 const mealRoutes = require('./routes/mealRoutes')
 const mealLogRoutes = require('./routes/mealLogRoutes')
 
+const {
+  notFound,
+  errorHandler
+} = require('./middleware/errorMiddleware')
 
 const app = express()
 
@@ -28,6 +32,12 @@ app.use('/api/goals', goalsRoutes)
 app.use('/api/foods', foodRoutes)
 app.use('/api/meals', mealRoutes)
 app.use('/api/meal-logs', mealLogRoutes)
+
+// 404 handler - MUST come after all routes
+app.use(notFound)
+
+// Global error handler - MUST be last middleware
+app.use(errorHandler)
 
 // Start server
 app.listen(PORT, () => {

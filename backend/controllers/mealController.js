@@ -7,18 +7,27 @@ const validateItems = async (items) => {
   }
 
   for (const item of items) {
+    const foodId = Number(item.foodId)
+    const quantity = Number(item.quantity)
+
     if (
-      !item.foodId ||
-      !item.quantity ||
-      Number(item.quantity) <= 0
+      !Number.isInteger(foodId) ||
+      foodId <= 0
     ) {
-      return 'Every meal item requires a valid food and quantity'
+      return 'Every meal item requires a valid food'
     }
 
-    const food = await Food.findById(item.foodId)
+    if (
+      !Number.isFinite(quantity) ||
+      quantity <= 0
+    ) {
+      return 'Every meal item requires a valid quantity greater than zero'
+    }
+
+    const food = await Food.findById(foodId)
 
     if (!food) {
-      return `Food ${item.foodId} was not found`
+      return `Food ${foodId} was not found`
     }
   }
 
