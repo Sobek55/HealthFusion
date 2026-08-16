@@ -161,3 +161,24 @@ export function deleteMealLog(logId) {
     method: 'DELETE'
   })
 }
+
+/*
+  Diet Plans
+*/
+
+export function getPresetDiets() {
+  return apiRequest('/diets/presets')
+}
+
+export function getActiveDiet() {
+  return apiRequest('/diets/active')
+}
+
+export function applyPresetDiet(presetKey) {
+  return apiRequest('/diets', {
+    method: 'POST',
+    body: JSON.stringify({
+      presetKey
+    })
+  })
+}

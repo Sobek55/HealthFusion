@@ -1282,3 +1282,292 @@
     flex-wrap: wrap;
   }
 }
+
+/* ========================================
+   NAVBAR ACCOUNT ACTIONS
+   ======================================== */
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.navbar-text-link {
+  color: #4b5c53;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.navbar-text-link:visited {
+  color: #4b5c53;
+}
+
+.navbar-text-link:hover {
+  color: #35a66f;
+}
+
+.discover-header {
+  max-width: 750px;
+}
+
+.discover-header h1 {
+  margin: 8px 0 12px;
+  color: #1c2b24;
+  font-size: 2.5rem;
+}
+
+.discover-header > p:last-child {
+  color: #66776e;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* ========================================
+   DISCOVER PAGE
+   ======================================== */
+
+.discover-page {
+  min-height: calc(100vh - 72px);
+  padding: 55px 8% 80px;
+  background: #f5f8f6;
+}
+
+.discover-hero {
+  max-width: 760px;
+  margin-bottom: 45px;
+}
+
+.discover-hero h1 {
+  margin: 8px 0 14px;
+  color: #1c2b24;
+  font-size: 2.7rem;
+}
+
+.discover-hero > p:last-child {
+  color: #66776e;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.active-diet-banner {
+  margin-bottom: 35px;
+  padding: 22px 26px;
+  background: white;
+  border: 1px solid #cfe5d8;
+  border-left: 5px solid #35a66f;
+  border-radius: 12px;
+}
+
+.active-diet-banner span {
+  color: #35a66f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.active-diet-banner h2 {
+  margin: 7px 0;
+  color: #1c2b24;
+}
+
+.active-diet-banner p {
+  margin: 0;
+  color: #66776e;
+}
+
+.discover-section {
+  margin-bottom: 40px;
+}
+
+.discover-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+  margin-bottom: 24px;
+}
+
+.discover-section-heading h2 {
+  margin: 5px 0 0;
+  color: #1c2b24;
+}
+
+.discover-section-heading > p {
+  max-width: 430px;
+  color: #66776e;
+}
+
+.diet-card-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.diet-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  padding: 25px;
+  background: white;
+  border: 1px solid #e2e8e4;
+  border-radius: 14px;
+}
+
+.diet-card h3 {
+  margin-top: 0;
+  color: #1c2b24;
+}
+
+.diet-card p {
+  color: #66776e;
+  line-height: 1.6;
+}
+
+.diet-details {
+  margin-bottom: 40px;
+  padding: 30px;
+  background: white;
+  border: 1px solid #dce6df;
+  border-radius: 14px;
+}
+
+.diet-details-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.diet-details-header h2 {
+  margin: 6px 0;
+  color: #1c2b24;
+}
+
+.diet-details-header p {
+  color: #66776e;
+}
+
+.diet-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 25px 0;
+}
+
+.diet-detail-grid > div {
+  padding: 20px;
+  background: #f8faf9;
+  border-radius: 10px;
+}
+
+.diet-detail-grid h3 {
+  margin-top: 0;
+  color: #1c2b24;
+}
+
+.diet-detail-grid p {
+  margin-bottom: 0;
+  color: #66776e;
+}
+
+.diet-guidelines {
+  margin-bottom: 25px;
+}
+
+.diet-guidelines h3 {
+  color: #1c2b24;
+}
+
+.diet-guidelines li {
+  margin-bottom: 8px;
+  color: #66776e;
+}
+
+.personalized-plan-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 35px;
+  padding: 32px;
+  background: white;
+  border: 1px solid #dce6df;
+  border-radius: 14px;
+}
+
+.personalized-plan-card h2 {
+  margin: 6px 0;
+  color: #1c2b24;
+}
+
+.personalized-plan-card p {
+  max-width: 700px;
+  color: #66776e;
+  line-height: 1.6;
+}
+
+.personalized-coming-next {
+  margin-top: 35px;
+  padding: 30px;
+  background: white;
+  border: 1px solid #e2e8e4;
+  border-radius: 14px;
+}
+
+.personalized-coming-next h2 {
+  color: #1c2b24;
+}
+
+.primary-button,
+.secondary-button {
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-button {
+  border: none;
+  background: #35a66f;
+  color: white;
+}
+
+.primary-button:hover {
+  opacity: 0.9;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  border: 1px solid #d4ddd7;
+  background: white;
+  color: #4b5c53;
+}
+
+@media (max-width: 1050px) {
+  .diet-card-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .diet-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discover-section-heading,
+  .diet-details-header,
+  .personalized-plan-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .diet-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

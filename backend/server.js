@@ -3,13 +3,29 @@ require('dotenv').config()
 const express = require('express')
 const cookieParser = require('cookie-parser')
 
-const healthRoutes = require('./routes/healthRoutes')
-const authRoutes = require('./routes/authRoutes')
-const profileRoutes = require('./routes/profileRoutes')
-const goalsRoutes = require('./routes/goalsRoutes')
-const foodRoutes = require('./routes/foodRoutes')
-const mealRoutes = require('./routes/mealRoutes')
-const mealLogRoutes = require('./routes/mealLogRoutes')
+const healthRoutes =
+  require('./routes/healthRoutes')
+
+const authRoutes =
+  require('./routes/authRoutes')
+
+const profileRoutes =
+  require('./routes/profileRoutes')
+
+const goalsRoutes =
+  require('./routes/goalsRoutes')
+
+const foodRoutes =
+  require('./routes/foodRoutes')
+
+const mealRoutes =
+  require('./routes/mealRoutes')
+
+const mealLogRoutes =
+  require('./routes/mealLogRoutes')
+
+const dietRoutes =
+  require('./routes/dietRoutes')
 
 const {
   notFound,
@@ -32,14 +48,17 @@ app.use('/api/goals', goalsRoutes)
 app.use('/api/foods', foodRoutes)
 app.use('/api/meals', mealRoutes)
 app.use('/api/meal-logs', mealLogRoutes)
+app.use('/api/diets', dietRoutes)
 
-// 404 handler - MUST come after all routes
+// 404 handler
 app.use(notFound)
 
-// Global error handler - MUST be last middleware
+// Global error handler
 app.use(errorHandler)
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`HealthFusion API running on port ${PORT}`)
+  console.log(
+    `HealthFusion API running on port ${PORT}`
+  )
 })

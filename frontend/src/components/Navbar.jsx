@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { getCurrentUser, logoutUser } from '../services/api'
+import {
+  Link,
+  useLocation,
+  useNavigate
+} from 'react-router-dom'
+
+import {
+  getCurrentUser,
+  logoutUser
+} from '../services/api'
 
 function Navbar() {
   const navigate = useNavigate()
@@ -43,24 +51,38 @@ function Navbar() {
 
         {isLoggedIn ? (
           <>
-            <Link to="/meals">Meal Tracking</Link>
-            <Link to="/dashboard">User Progress</Link>
-            <Link to="/profile">User Profile</Link>
+            <Link to="/meals">
+              Meal Tracking
+            </Link>
+
+            <Link to="/dashboard">
+              User Progress
+            </Link>
+
+            <Link to="/profile">
+              User Profile
+            </Link>
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <Link to="/login">
+              Login
+            </Link>
+
+            <Link to="/register">
+              Register
+            </Link>
           </>
         )}
       </nav>
 
-      {isLoggedIn ? (
+      {isLoggedIn && (
         <button
+          type="button"
           className="login-button"
           onClick={handleLogout}
         >
-          Log Out
+          Logout
         </button>
       )}
     </header>

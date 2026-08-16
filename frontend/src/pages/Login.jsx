@@ -34,7 +34,7 @@ function Login() {
         password: formData.password
       })
 
-      navigate('/dashboard')
+      navigate('/')
     } catch (err) {
       setError(err.message)
     } finally {
