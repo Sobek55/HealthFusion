@@ -5,48 +5,37 @@ import { registerUser } from '../services/api'
 function Register() {
   const navigate = useNavigate()
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  })
-
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-
-    setFormData((current) => ({
-      ...current,
-      [name]: value
-    }))
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault()
+
     setError('')
 
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
     }
 
-    try {
-      setLoading(true)
+    setLoading(true)
 
+    try {
       await registerUser({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password
+        firstName,
+        lastName,
+        email,
+        password
       })
 
       navigate('/login')
-    } catch (err) {
-      setError(err.message)
+    } catch (error) {
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -61,29 +50,35 @@ function Register() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="auth-error">
+              {error}
+            </div>
+          )}
+
           <div className="name-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
+
               <input
                 type="text"
                 id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
                 placeholder="First name"
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
                 required
               />
             </div>
 
             <div className="form-group">
               <label htmlFor="lastName">Last Name</label>
+
               <input
                 type="text"
                 id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
                 placeholder="Last name"
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
                 required
               />
             </div>
@@ -91,44 +86,46 @@ function Register() {
 
           <div className="form-group">
             <label htmlFor="registerEmail">Email</label>
+
             <input
               type="email"
               id="registerEmail"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
               placeholder="Enter your email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="registerPassword">Password</label>
+
             <input
               type="password"
               id="registerPassword"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
               placeholder="Create a password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">
+              Confirm Password
+            </label>
+
             <input
               type="password"
               id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
               placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={(event) =>
+                setConfirmPassword(event.target.value)
+              }
               required
             />
           </div>
-
-          {error && <p className="auth-error">{error}</p>}
 
           <button
             type="submit"
@@ -140,7 +137,8 @@ function Register() {
         </form>
 
         <p className="auth-switch">
-          Already have an account? <Link to="/login">Log In</Link>
+          Already have an account?{' '}
+          <Link to="/login">Log In</Link>
         </p>
       </div>
     </main>

@@ -1049,3 +1049,17 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.auth-error {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff1f1;
+  border: 1px solid #e5aaaa;
+  color: #9d2424;
+  font-size: 0.9rem;
+}
+
+.auth-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

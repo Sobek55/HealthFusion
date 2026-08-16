@@ -5,38 +5,28 @@ import { loginUser } from '../services/api'
 function Login() {
   const navigate = useNavigate()
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-
-    setFormData((current) => ({
-      ...current,
-      [name]: value
-    }))
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault()
+
     setError('')
+    setLoading(true)
 
     try {
-      setLoading(true)
-
-      await loginUser({
-        email: formData.email,
-        password: formData.password
+      const data = await loginUser({
+        email,
+        password
       })
 
+      localStorage.setItem('token', data.token)
+
       navigate('/dashboard')
-    } catch (err) {
-      setError(err.message)
+    } catch (error) {
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -51,33 +41,37 @@ function Login() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          {error && (
+            <div className="auth-error">
+              {error}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
+
             <input
               type="email"
               id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
               placeholder="Enter your email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
+
             <input
               type="password"
               id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
               placeholder="Enter your password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
-
-          {error && <p className="auth-error">{error}</p>}
 
           <div className="form-options">
             <label className="remember-me">
