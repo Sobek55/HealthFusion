@@ -10,7 +10,9 @@ import {
 import {
   getPresetDiets,
   getActiveDiet,
-  applyPresetDiet
+  applyPresetDiet,
+  previewPersonalizedDiet,
+  savePersonalizedDiet
 } from '../services/api'
 
 function Discover() {
@@ -23,6 +25,9 @@ function Discover() {
   const [activePlan, setActivePlan] =
     useState(null)
 
+  const [isLoggedIn, setIsLoggedIn] =
+    useState(false)
+
   const [loading, setLoading] =
     useState(true)
 
@@ -31,6 +36,25 @@ function Discover() {
 
   const [error, setError] =
     useState('')
+
+  const [personalizedForm, setPersonalizedForm] =
+    useState({
+      primaryGoal: '',
+      currentWeight: '',
+      targetWeight: '',
+      activityLevel: '',
+      dietaryPreferences: '',
+      foodRestrictions: ''
+    })
+
+  const [preview, setPreview] =
+    useState(null)
+
+  const [previewing, setPreviewing] =
+    useState(false)
+
+  const [saving, setSaving] =
+    useState(false)
 
   useEffect(() => {
     const loadDiscover = async () => {
@@ -48,10 +72,13 @@ function Discover() {
           const activeData =
             await getActiveDiet()
 
+          setIsLoggedIn(true)
+
           setActivePlan(
             activeData.plan || null
           )
         } catch {
+          setIsLoggedIn(false)
           setActivePlan(null)
         }
       } catch (error) {
@@ -86,6 +113,90 @@ function Discover() {
       setApplying(false)
     }
   }
+
+  const handlePersonalizedChange = event => {
+    const {
+      name,
+      value
+    } = event.target
+
+    setPersonalizedForm(current => ({
+      ...current,
+      [name]: value
+    }))
+
+    // If the user edits their answers after
+    // previewing, require a new calculation.
+    setPreview(null)
+    setError('')
+  }
+
+  const handleOpenPersonalized = () => {
+    if (!isLoggedIn) {
+      navigate('/login')
+      return
+    }
+
+    document
+      .getElementById('personalized-plan')
+      ?.scrollIntoView({
+        behavior: 'smooth'
+      })
+  }
+
+  const handlePreview = async event => {
+    event.preventDefault()
+
+    try {
+      setPreviewing(true)
+      setError('')
+
+      const data =
+        await previewPersonalizedDiet(
+          personalizedForm
+        )
+
+      setPreview(data.plan)
+
+      setTimeout(() => {
+        document
+          .getElementById('plan-preview')
+          ?.scrollIntoView({
+            behavior: 'smooth'
+          })
+      }, 50)
+    } catch (error) {
+      if (
+        error.message ===
+        'Authentication required'
+      ) {
+        navigate('/login')
+        return
+      }
+
+      setError(error.message)
+    } finally {
+      setPreviewing(false)
+    }
+  }
+
+  const handleSavePersonalized =
+    async () => {
+      try {
+        setSaving(true)
+        setError('')
+
+        await savePersonalizedDiet(
+          personalizedForm
+        )
+
+        navigate('/dashboard')
+      } catch (error) {
+        setError(error.message)
+      } finally {
+        setSaving(false)
+      }
+    }
 
   if (loading) {
     return (
@@ -231,7 +342,9 @@ function Discover() {
           </div>
 
           <div className="diet-guidelines">
-            <h3>General Guidelines</h3>
+            <h3>
+              General Guidelines
+            </h3>
 
             <ul>
               {selectedPlan.guidelines.map(
@@ -281,15 +394,7 @@ function Discover() {
         <button
           type="button"
           className="primary-button"
-          onClick={() =>
-            document
-              .getElementById(
-                'personalized-plan'
-              )
-              ?.scrollIntoView({
-                behavior: 'smooth'
-              })
-          }
+          onClick={handleOpenPersonalized}
         >
           Create Personalized Plan
         </button>
@@ -297,17 +402,337 @@ function Discover() {
 
       <section
         id="personalized-plan"
-        className="personalized-coming-next"
+        className="personalized-builder"
       >
-        <h2>
-          Personalized Plan Builder
-        </h2>
+        <div className="discover-section-heading">
+          <div>
+            <p className="tagline">
+              BUILD YOUR PLAN
+            </p>
 
-        <p>
-          Personalized plan setup will
-          appear here.
-        </p>
+            <h2>
+              Personalized Plan Builder
+            </h2>
+          </div>
+
+          <p>
+            Enter your information to
+            calculate recommended daily
+            calorie and macronutrient
+            targets.
+          </p>
+        </div>
+
+        <form
+          className="personalized-form"
+          onSubmit={handlePreview}
+        >
+          <div className="personalized-form-grid">
+            <label>
+              Primary Goal
+
+              <select
+                name="primaryGoal"
+                value={
+                  personalizedForm.primaryGoal
+                }
+                onChange={
+                  handlePersonalizedChange
+                }
+                required
+              >
+                <option value="">
+                  Select a goal
+                </option>
+
+                <option value="Weight Loss">
+                  Weight Loss
+                </option>
+
+                <option value="Muscle Gain">
+                  Muscle Gain
+                </option>
+
+                <option value="Weight Maintenance">
+                  Weight Maintenance
+                </option>
+
+                <option value="Improved Nutrition">
+                  Improved Nutrition
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Activity Level
+
+              <select
+                name="activityLevel"
+                value={
+                  personalizedForm.activityLevel
+                }
+                onChange={
+                  handlePersonalizedChange
+                }
+                required
+              >
+                <option value="">
+                  Select activity level
+                </option>
+
+                <option value="Sedentary">
+                  Sedentary
+                </option>
+
+                <option value="Lightly Active">
+                  Lightly Active
+                </option>
+
+                <option value="Moderately Active">
+                  Moderately Active
+                </option>
+
+                <option value="Highly Active">
+                  Highly Active
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Current Weight (lb)
+
+              <input
+                type="number"
+                name="currentWeight"
+                min="1"
+                step="0.1"
+                value={
+                  personalizedForm.currentWeight
+                }
+                onChange={
+                  handlePersonalizedChange
+                }
+                required
+              />
+            </label>
+
+            <label>
+              Target Weight (lb)
+
+              <input
+                type="number"
+                name="targetWeight"
+                min="1"
+                step="0.1"
+                value={
+                  personalizedForm.targetWeight
+                }
+                onChange={
+                  handlePersonalizedChange
+                }
+                required
+              />
+            </label>
+          </div>
+
+          <label>
+            Dietary Preferences
+
+            <textarea
+              name="dietaryPreferences"
+              rows="3"
+              placeholder="Example: High protein, Mediterranean-style foods"
+              value={
+                personalizedForm.dietaryPreferences
+              }
+              onChange={
+                handlePersonalizedChange
+              }
+              required
+            />
+          </label>
+
+          <label>
+            Food Restrictions
+
+            <textarea
+              name="foodRestrictions"
+              rows="3"
+              placeholder="Example: No shellfish, lactose intolerant, or None"
+              value={
+                personalizedForm.foodRestrictions
+              }
+              onChange={
+                handlePersonalizedChange
+              }
+              required
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="primary-button"
+            disabled={previewing}
+          >
+            {previewing
+              ? 'Calculating...'
+              : 'Calculate My Plan'}
+          </button>
+        </form>
       </section>
+
+      {preview && (
+        <section
+          id="plan-preview"
+          className="personalized-preview"
+        >
+          <div className="preview-heading">
+            <div>
+              <p className="tagline">
+                RECOMMENDED PLAN
+              </p>
+
+              <h2>
+                {preview.planName}
+              </h2>
+
+              <p>
+                Review your plan before
+                saving it.
+              </p>
+            </div>
+          </div>
+
+          <div className="preview-summary-grid">
+            <div className="preview-stat">
+              <span>
+                Daily Calories
+              </span>
+
+              <strong>
+                {preview.calorieTarget}
+              </strong>
+
+              <small>kcal</small>
+            </div>
+
+            <div className="preview-stat">
+              <span>Protein</span>
+
+              <strong>
+                {preview.proteinTarget}
+              </strong>
+
+              <small>grams</small>
+            </div>
+
+            <div className="preview-stat">
+              <span>Carbohydrates</span>
+
+              <strong>
+                {preview.carbTarget}
+              </strong>
+
+              <small>grams</small>
+            </div>
+
+            <div className="preview-stat">
+              <span>Fat</span>
+
+              <strong>
+                {preview.fatTarget}
+              </strong>
+
+              <small>grams</small>
+            </div>
+          </div>
+
+          <div className="preview-details">
+            <p>
+              <strong>
+                Primary Goal:
+              </strong>{' '}
+              {preview.primaryGoal}
+            </p>
+
+            <p>
+              <strong>
+                Current Weight:
+              </strong>{' '}
+              {preview.currentWeight} lb
+            </p>
+
+            <p>
+              <strong>
+                Target Weight:
+              </strong>{' '}
+              {preview.targetWeight} lb
+            </p>
+
+            <p>
+              <strong>
+                Activity Level:
+              </strong>{' '}
+              {preview.activityLevel}
+            </p>
+
+            <p>
+              <strong>
+                Estimated Maintenance:
+              </strong>{' '}
+              {preview.maintenanceCalories}{' '}
+              kcal
+            </p>
+
+            <p>
+              <strong>
+                Dietary Preferences:
+              </strong>{' '}
+              {preview.dietaryPreferences}
+            </p>
+
+            <p>
+              <strong>
+                Food Restrictions:
+              </strong>{' '}
+              {preview.foodRestrictions}
+            </p>
+          </div>
+
+          <div className="preview-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                setPreview(null)
+
+                document
+                  .getElementById(
+                    'personalized-plan'
+                  )
+                  ?.scrollIntoView({
+                    behavior: 'smooth'
+                  })
+              }}
+            >
+              Modify Plan
+            </button>
+
+            <button
+              type="button"
+              className="primary-button"
+              disabled={saving}
+              onClick={
+                handleSavePersonalized
+              }
+            >
+              {saving
+                ? 'Saving Plan...'
+                : 'Confirm & Save Plan'}
+            </button>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

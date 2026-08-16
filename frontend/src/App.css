@@ -1571,3 +1571,143 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================
+   PERSONALIZED DIET PLAN
+   ======================================== */
+
+.personalized-builder {
+  margin-top: 35px;
+  padding: 30px;
+  background: white;
+  border: 1px solid #e2e8e4;
+  border-radius: 14px;
+}
+
+.personalized-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.personalized-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.personalized-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #1c2b24;
+  font-weight: 600;
+}
+
+.personalized-form input,
+.personalized-form select,
+.personalized-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d4ddd7;
+  border-radius: 8px;
+  background: white;
+  color: #1c2b24;
+  font: inherit;
+}
+
+.personalized-form textarea {
+  resize: vertical;
+}
+
+.personalized-form input:focus,
+.personalized-form select:focus,
+.personalized-form textarea:focus {
+  outline: none;
+  border-color: #35a66f;
+}
+
+.personalized-preview {
+  margin-top: 35px;
+  padding: 30px;
+  background: white;
+  border: 2px solid #cfe5d8;
+  border-radius: 14px;
+}
+
+.preview-heading h2 {
+  margin: 6px 0;
+  color: #1c2b24;
+}
+
+.preview-heading p {
+  color: #66776e;
+}
+
+.preview-summary-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 25px 0;
+}
+
+.preview-stat {
+  padding: 20px;
+  background: #f8faf9;
+  border: 1px solid #e2e8e4;
+  border-radius: 10px;
+}
+
+.preview-stat span {
+  display: block;
+  color: #66776e;
+  font-size: 0.85rem;
+}
+
+.preview-stat strong {
+  display: block;
+  margin: 7px 0 2px;
+  color: #1c2b24;
+  font-size: 1.8rem;
+}
+
+.preview-stat small {
+  color: #7b8982;
+}
+
+.preview-details {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px 25px;
+  padding: 22px;
+  background: #f8faf9;
+  border-radius: 10px;
+}
+
+.preview-details p {
+  margin: 0;
+  color: #4b5c53;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+@media (max-width: 800px) {
+  .personalized-form-grid,
+  .preview-summary-grid,
+  .preview-details {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-actions {
+    flex-direction: column;
+  }
+}

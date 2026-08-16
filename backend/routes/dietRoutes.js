@@ -6,18 +6,45 @@ const protect =
 const {
   getPresetDiets,
   getActiveDiet,
-  saveDiet
+  saveDiet,
+  previewPersonalizedDiet,
+  savePersonalizedDiet
 } = require('../controllers/dietController')
 
 const router = express.Router()
 
-// Visitors can view preset diets
-router.get('/presets', getPresetDiets)
+// Anyone can browse preset plans
+router.get(
+  '/presets',
+  getPresetDiets
+)
 
-// Account-specific diet information
-router.get('/active', protect, getActiveDiet)
+// Logged-in user's current diet
+router.get(
+  '/active',
+  protect,
+  getActiveDiet
+)
 
-// Apply/save a diet plan
-router.post('/', protect, saveDiet)
+// Apply a preset plan
+router.post(
+  '/',
+  protect,
+  saveDiet
+)
+
+// Calculate without saving
+router.post(
+  '/personalized/preview',
+  protect,
+  previewPersonalizedDiet
+)
+
+// Confirm and save personalized plan
+router.post(
+  '/personalized',
+  protect,
+  savePersonalizedDiet
+)
 
 module.exports = router

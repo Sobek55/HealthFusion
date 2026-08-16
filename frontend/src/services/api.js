@@ -182,3 +182,27 @@ export function applyPresetDiet(presetKey) {
     })
   })
 }
+
+export function previewPersonalizedDiet(
+  planData
+) {
+  return apiRequest(
+    '/diets/personalized/preview',
+    {
+      method: 'POST',
+      body: JSON.stringify(planData)
+    }
+  )
+}
+
+export function savePersonalizedDiet(
+  planData
+) {
+  return apiRequest(
+    '/diets/personalized',
+    {
+      method: 'POST',
+      body: JSON.stringify(planData)
+    }
+  )
+}
