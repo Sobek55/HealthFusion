@@ -1711,3 +1711,29 @@
     flex-direction: column;
   }
 }
+
+.profile-targets {
+  margin-top: 30px;
+  padding-top: 28px;
+  border-top: 1px solid #e2e8e4;
+}
+
+.profile-targets h2 {
+  margin: 6px 0;
+  color: #1c2b24;
+}
+
+.profile-targets > p {
+  color: #66776e;
+  line-height: 1.6;
+}
+
+.auth-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d4ddd7;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}

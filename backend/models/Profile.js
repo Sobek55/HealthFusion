@@ -9,7 +9,11 @@ const Profile = {
         age,
         height,
         weight,
-        activity_level
+        target_weight,
+        health_goal,
+        activity_level,
+        dietary_preferences,
+        food_restrictions
        FROM User_Profiles
        WHERE user_id = ?`,
       [userId]
@@ -18,17 +22,56 @@ const Profile = {
     return rows[0]
   },
 
-  async save(userId, age, height, weight, activityLevel) {
+  async save(
+    userId,
+    age,
+    height,
+    weight,
+    targetWeight,
+    healthGoal,
+    activityLevel,
+    dietaryPreferences,
+    foodRestrictions
+  ) {
     await pool.execute(
       `INSERT INTO User_Profiles
-        (user_id, age, height, weight, activity_level)
-       VALUES (?, ?, ?, ?, ?)
+        (
+          user_id,
+          age,
+          height,
+          weight,
+          target_weight,
+          health_goal,
+          activity_level,
+          dietary_preferences,
+          food_restrictions
+        )
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
-        age = VALUES(age),
-        height = VALUES(height),
-        weight = VALUES(weight),
-        activity_level = VALUES(activity_level)`,
-      [userId, age, height, weight, activityLevel]
+          age = VALUES(age),
+          height = VALUES(height),
+          weight = VALUES(weight),
+          target_weight =
+            VALUES(target_weight),
+          health_goal =
+            VALUES(health_goal),
+          activity_level =
+            VALUES(activity_level),
+          dietary_preferences =
+            VALUES(dietary_preferences),
+          food_restrictions =
+            VALUES(food_restrictions)`,
+      [
+        userId,
+        age,
+        height,
+        weight,
+        targetWeight,
+        healthGoal,
+        activityLevel,
+        dietaryPreferences,
+        foodRestrictions
+      ]
     )
 
     return this.findByUserId(userId)

@@ -17,8 +17,11 @@ CREATE TABLE User_Profiles (
     age INT,
     height DECIMAL(5,2),
     weight DECIMAL(6,2),
+    target_weight DECIMAL(6,2),
+    health_goal VARCHAR(50),
     activity_level VARCHAR(50),
-
+    dietary_preferences TEXT,
+    food_restrictions TEXT,
     FOREIGN KEY (user_id)
         REFERENCES Users(user_id)
         ON DELETE CASCADE
