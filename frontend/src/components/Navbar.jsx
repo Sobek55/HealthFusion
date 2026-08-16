@@ -19,13 +19,13 @@ function Navbar() {
     }
 
     checkAuthentication()
-  }, [location])
+  }, [location.pathname])
 
   const handleLogout = async () => {
     try {
       await logoutUser()
       setIsLoggedIn(false)
-      navigate('/login')
+      navigate('/')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -38,10 +38,21 @@ function Navbar() {
       </Link>
 
       <nav>
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/meals">Meals</Link>
-        <Link to="/goals">Goals</Link>
-        <Link to="/profile">Profile</Link>
+        <Link to="/">Home</Link>
+        <Link to="/discover">Discover</Link>
+
+        {isLoggedIn ? (
+          <>
+            <Link to="/meals">Meal Tracking</Link>
+            <Link to="/dashboard">User Progress</Link>
+            <Link to="/profile">User Profile</Link>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
       </nav>
 
       {isLoggedIn ? (
