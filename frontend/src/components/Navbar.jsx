@@ -62,10 +62,6 @@ function Navbar() {
         >
           Log Out
         </button>
-      ) : (
-        <Link to="/login" className="login-button">
-          Log In
-        </Link>
       )}
     </header>
   )
