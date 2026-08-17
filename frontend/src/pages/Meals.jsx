@@ -7,6 +7,7 @@ import {
 import {
   getFoods,
   searchFoods,
+  createFood,
   getMeals,
   getMeal,
   createMeal,
@@ -16,6 +17,36 @@ import {
   getTodayMealLogs,
   deleteMealLog
 } from '../services/api'
+
+const MEAL_TYPES = [
+  'Breakfast',
+  'Brunch',
+  'Lunch',
+  'Dinner',
+  'Snack',
+  'Dessert',
+  'Pre-Workout',
+  'Post-Workout',
+  'Shake/Drink'
+]
+
+const FOOD_CATEGORIES = [
+  'All',
+  'Protein',
+  'Carbs',
+  'Fruit',
+  'Vegetables',
+  'Dairy',
+  'Fats',
+  'Snacks',
+  'Drinks'
+]
+
+const CUSTOM_FOOD_CATEGORIES =
+  FOOD_CATEGORIES.filter(
+    (category) =>
+      category !== 'All'
+  )
 
 const getTodayDate = () => {
   const now = new Date()
@@ -42,12 +73,16 @@ const toDateInputValue = (
   }
 
   if (
-    typeof value === 'string' &&
+    typeof value ===
+      'string' &&
     /^\d{4}-\d{2}-\d{2}/.test(
       value
     )
   ) {
-    return value.slice(0, 10)
+    return value.slice(
+      0,
+      10
+    )
   }
 
   const date =
@@ -126,7 +161,8 @@ function Meals() {
     setManualMeal
   ] = useState({
     servingSize: '',
-    servingUnit: 'serving',
+    servingUnit:
+      'serving',
     calories: '',
     protein: '',
     carbs: '',
@@ -147,6 +183,37 @@ function Meals() {
     searchTerm,
     setSearchTerm
   ] = useState('')
+
+  const [
+    selectedCategory,
+    setSelectedCategory
+  ] = useState('All')
+
+  const [
+    showCustomFood,
+    setShowCustomFood
+  ] = useState(false)
+
+  const [
+    customFood,
+    setCustomFood
+  ] = useState({
+    name: '',
+    category:
+      'Protein',
+    servingSize: '',
+    servingUnit:
+      'serving',
+    calories: '',
+    protein: '',
+    carbs: '',
+    fat: ''
+  })
+
+  const [
+    savingCustomFood,
+    setSavingCustomFood
+  ] = useState(false)
 
   const [
     foods,
@@ -215,12 +282,29 @@ function Meals() {
   }, [])
 
   const loadFoods =
-    async () => {
+    async (
+      category =
+        selectedCategory,
+      term =
+        searchTerm.trim()
+    ) => {
       try {
         setLoadingFoods(true)
 
-        const data =
-          await getFoods()
+        let data
+
+        if (term) {
+          data =
+            await searchFoods(
+              term,
+              category
+            )
+        } else {
+          data =
+            await getFoods(
+              category
+            )
+        }
 
         setFoods(
           data.foods || []
@@ -278,42 +362,252 @@ function Meals() {
     async (event) => {
       event.preventDefault()
 
-      try {
-        setLoadingFoods(true)
-        setError('')
-        setSuccess('')
+      setError('')
+      setSuccess('')
 
+      await loadFoods(
+        selectedCategory,
+        searchTerm.trim()
+      )
+    }
+
+  const handleCategoryChange =
+    async (category) => {
+      setSelectedCategory(
+        category
+      )
+
+      setError('')
+      setSuccess('')
+
+      await loadFoods(
+        category,
+        searchTerm.trim()
+      )
+    }
+
+  const handleCustomFoodChange =
+    (event) => {
+      const {
+        name,
+        value
+      } = event.target
+
+      setCustomFood(
+        (current) => ({
+          ...current,
+          [name]: value
+        })
+      )
+    }
+
+  const resetCustomFood = () => {
+    setCustomFood({
+      name: '',
+      category:
+        'Protein',
+      servingSize: '',
+      servingUnit:
+        'serving',
+      calories: '',
+      protein: '',
+      carbs: '',
+      fat: ''
+    })
+  }
+
+  const handleCreateCustomFood =
+    async (event) => {
+      event.preventDefault()
+
+      setError('')
+      setSuccess('')
+
+      if (
+        !customFood.name.trim()
+      ) {
+        setError(
+          'Custom food name is required.'
+        )
+
+        return
+      }
+
+      if (
+        !customFood.category
+      ) {
+        setError(
+          'Please select a food category.'
+        )
+
+        return
+      }
+
+      if (
+        !Number.isFinite(
+          Number(
+            customFood.servingSize
+          )
+        ) ||
+        Number(
+          customFood.servingSize
+        ) <= 0
+      ) {
+        setError(
+          'Serving size must be greater than zero.'
+        )
+
+        return
+      }
+
+      if (
+        !customFood
+          .servingUnit
+          .trim()
+      ) {
+        setError(
+          'Serving unit is required.'
+        )
+
+        return
+      }
+
+      const fields = [
+        [
+          'Calories',
+          customFood.calories
+        ],
+        [
+          'Protein',
+          customFood.protein
+        ],
+        [
+          'Carbohydrates',
+          customFood.carbs
+        ],
+        [
+          'Fat',
+          customFood.fat
+        ]
+      ]
+
+      for (
+        const [
+          label,
+          value
+        ] of fields
+      ) {
         if (
-          !searchTerm.trim()
+          value === '' ||
+          !Number.isFinite(
+            Number(value)
+          ) ||
+          Number(value) < 0
         ) {
-          await loadFoods()
-          return
-        }
-
-        const data =
-          await searchFoods(
-            searchTerm.trim()
+          setError(
+            `${label} must be zero or greater.`
           )
 
-        setFoods(
-          data.foods || []
+          return
+        }
+      }
+
+      try {
+        setSavingCustomFood(
+          true
+        )
+
+        const data =
+          await createFood({
+            name:
+              customFood
+                .name
+                .trim(),
+
+            category:
+              customFood
+                .category,
+
+            servingSize:
+              Number(
+                customFood
+                  .servingSize
+              ),
+
+            servingUnit:
+              customFood
+                .servingUnit
+                .trim(),
+
+            calories:
+              Number(
+                customFood
+                  .calories
+              ),
+
+            protein:
+              Number(
+                customFood
+                  .protein
+              ),
+
+            carbs:
+              Number(
+                customFood
+                  .carbs
+              ),
+
+            fat:
+              Number(
+                customFood
+                  .fat
+              )
+          })
+
+        setSuccess(
+          data.message ||
+            'Custom food created successfully.'
+        )
+
+        const category =
+          customFood.category
+
+        resetCustomFood()
+
+        setShowCustomFood(
+          false
+        )
+
+        setSelectedCategory(
+          category
+        )
+
+        setSearchTerm('')
+
+        await loadFoods(
+          category,
+          ''
         )
       } catch (error) {
         setError(
           error.message
         )
       } finally {
-        setLoadingFoods(false)
+        setSavingCustomFood(
+          false
+        )
       }
     }
 
-  const addFood = (food) => {
+  const addFood = (
+    food
+  ) => {
     setError('')
     setSuccess('')
 
     setMealItems(
       (currentItems) => {
-        const existingItem =
+        const existing =
           currentItems.find(
             (item) =>
               item.food
@@ -321,7 +615,7 @@ function Meals() {
               food.food_id
           )
 
-        if (existingItem) {
+        if (existing) {
           return currentItems.map(
             (item) =>
               item.food
@@ -358,7 +652,7 @@ function Meals() {
       Number(value)
 
     if (
-      Number.isNaN(
+      !Number.isFinite(
         quantity
       ) ||
       quantity <= 0
@@ -367,8 +661,8 @@ function Meals() {
     }
 
     setMealItems(
-      (currentItems) =>
-        currentItems.map(
+      (items) =>
+        items.map(
           (item) =>
             item.food
               .food_id ===
@@ -386,8 +680,8 @@ function Meals() {
     foodId
   ) => {
     setMealItems(
-      (currentItems) =>
-        currentItems.filter(
+      (items) =>
+        items.filter(
           (item) =>
             item.food
               .food_id !==
@@ -475,25 +769,21 @@ function Meals() {
     useMemo(() => {
       return savedMeals.filter(
         (meal) => {
-          const matchesType =
+          const typeMatches =
             filterMealType ===
               'All' ||
             meal.meal_type ===
               filterMealType
 
-          const mealDateValue =
+          const dateMatches =
+            !filterDate ||
             toDateInputValue(
               meal.meal_date
-            )
-
-          const matchesDate =
-            !filterDate ||
-            mealDateValue ===
-              filterDate
+            ) === filterDate
 
           return (
-            matchesType &&
-            matchesDate
+            typeMatches &&
+            dateMatches
           )
         }
       )
@@ -511,7 +801,10 @@ function Meals() {
     )
 
     setMealItems([])
-    setEditingMealId(null)
+
+    setEditingMealId(
+      null
+    )
 
     setEntryMode(
       'manual'
@@ -519,7 +812,8 @@ function Meals() {
 
     setManualMeal({
       servingSize: '',
-      servingUnit: 'serving',
+      servingUnit:
+        'serving',
       calories: '',
       protein: '',
       carbs: '',
@@ -527,24 +821,20 @@ function Meals() {
     })
   }
 
-  const handleManualChange = (
-    event
-  ) => {
-    const {
-      name,
-      value
-    } = event.target
+  const handleManualChange =
+    (event) => {
+      const {
+        name,
+        value
+      } = event.target
 
-    setManualMeal(
-      (current) => ({
-        ...current,
-        [name]: value
-      })
-    )
-
-    setError('')
-    setSuccess('')
-  }
+      setManualMeal(
+        (current) => ({
+          ...current,
+          [name]: value
+        })
+      )
+    }
 
   const handleSaveMeal =
     async () => {
@@ -646,50 +936,41 @@ function Meals() {
           return
         }
 
-        const nutritionValues = [
-          {
-            name:
+        const nutrition =
+          [
+            [
               'Calories',
-            value:
               calories
-          },
-          {
-            name:
+            ],
+            [
               'Protein',
-            value:
               protein
-          },
-          {
-            name:
+            ],
+            [
               'Carbohydrates',
-            value:
               carbs
-          },
-          {
-            name:
+            ],
+            [
               'Fat',
-            value:
               fat
-          }
-        ]
+            ]
+          ]
 
         for (
-          const field of
-          nutritionValues
+          const [
+            label,
+            value
+          ] of nutrition
         ) {
           if (
-            field.value === '' ||
+            value === '' ||
             !Number.isFinite(
-              Number(
-                field.value
-              )
+              Number(value)
             ) ||
-            Number(
-              field.value
-            ) < 0
+            Number(value) < 0
           ) {
             setError(
-              `${field.name} must be zero or greater.`
+              `${label} must be zero or greater.`
             )
 
             return
@@ -716,24 +997,16 @@ function Meals() {
             'serving',
 
           calories:
-            Number(
-              calories
-            ),
+            Number(calories),
 
           protein:
-            Number(
-              protein
-            ),
+            Number(protein),
 
           carbs:
-            Number(
-              carbs
-            ),
+            Number(carbs),
 
           fat:
-            Number(
-              fat
-            )
+            Number(fat)
         }
       }
 
@@ -852,16 +1125,6 @@ function Meals() {
             'builder'
           )
 
-          setManualMeal({
-            servingSize: '',
-            servingUnit:
-              'serving',
-            calories: '',
-            protein: '',
-            carbs: '',
-            fat: ''
-          })
-
           setMealItems(
             (
               meal.items ||
@@ -874,6 +1137,9 @@ function Meals() {
 
                   name:
                     item.name,
+
+                  category:
+                    item.category,
 
                   serving_size:
                     item.serving_size,
@@ -917,19 +1183,15 @@ function Meals() {
 
   const handleDeleteMeal =
     async (mealId) => {
-      const confirmed =
-        window.confirm(
+      if (
+        !window.confirm(
           'Are you sure you want to delete this meal?'
         )
-
-      if (!confirmed) {
+      ) {
         return
       }
 
       try {
-        setError('')
-        setSuccess('')
-
         await deleteMeal(
           mealId
         )
@@ -957,9 +1219,6 @@ function Meals() {
   const handleLogMeal =
     async (mealId) => {
       try {
-        setError('')
-        setSuccess('')
-
         setLoggingMealId(
           mealId
         )
@@ -986,19 +1245,15 @@ function Meals() {
 
   const handleDeleteMealLog =
     async (logId) => {
-      const confirmed =
-        window.confirm(
+      if (
+        !window.confirm(
           "Remove this meal from today's log?"
         )
-
-      if (!confirmed) {
+      ) {
         return
       }
 
       try {
-        setError('')
-        setSuccess('')
-
         await deleteMealLog(
           logId
         )
@@ -1030,10 +1285,10 @@ function Meals() {
           </h1>
 
           <p>
-            Build a meal using
-            foods or quickly enter
-            nutrition information
-            manually.
+            Build meals from your
+            food library or quickly
+            enter nutrition
+            information manually.
           </p>
         </div>
       </section>
@@ -1056,15 +1311,270 @@ function Meals() {
           <section className="food-search-panel">
             <div className="meal-panel-header">
               <div>
+                <p className="tagline">
+                  FOOD LIBRARY
+                </p>
+
                 <h2>
                   Find Foods
                 </h2>
 
                 <p>
-                  Add ingredients to
-                  your meal.
+                  Search or browse
+                  by category.
                 </p>
               </div>
+
+              <button
+                type="button"
+                className="add-custom-food-button"
+                onClick={() =>
+                  setShowCustomFood(
+                    (current) =>
+                      !current
+                  )
+                }
+              >
+                {showCustomFood
+                  ? 'Close'
+                  : '+ Add Custom Food'}
+              </button>
+            </div>
+
+            {showCustomFood && (
+              <form
+                className="custom-food-form"
+                onSubmit={
+                  handleCreateCustomFood
+                }
+              >
+                <div className="custom-food-heading">
+                  <div>
+                    <p className="tagline">
+                      CUSTOM FOOD
+                    </p>
+
+                    <h3>
+                      Add to Your Library
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="custom-food-grid">
+                  <div className="form-group custom-food-wide">
+                    <label htmlFor="customFoodName">
+                      Food Name
+                    </label>
+
+                    <input
+                      id="customFoodName"
+                      name="name"
+                      type="text"
+                      value={
+                        customFood.name
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                      placeholder="Example: My Protein Bar"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customFoodCategory">
+                      Category
+                    </label>
+
+                    <select
+                      id="customFoodCategory"
+                      name="category"
+                      value={
+                        customFood.category
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                    >
+                      {CUSTOM_FOOD_CATEGORIES.map(
+                        (
+                          category
+                        ) => (
+                          <option
+                            key={
+                              category
+                            }
+                            value={
+                              category
+                            }
+                          >
+                            {
+                              category
+                            }
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customServingSize">
+                      Serving Size
+                    </label>
+
+                    <input
+                      id="customServingSize"
+                      name="servingSize"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={
+                        customFood.servingSize
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                      placeholder="1"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customServingUnit">
+                      Serving Unit
+                    </label>
+
+                    <input
+                      id="customServingUnit"
+                      name="servingUnit"
+                      type="text"
+                      value={
+                        customFood.servingUnit
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                      placeholder="bar, cup, oz..."
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customCalories">
+                      Calories
+                    </label>
+
+                    <input
+                      id="customCalories"
+                      name="calories"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={
+                        customFood.calories
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customProtein">
+                      Protein (g)
+                    </label>
+
+                    <input
+                      id="customProtein"
+                      name="protein"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={
+                        customFood.protein
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customCarbs">
+                      Carbs (g)
+                    </label>
+
+                    <input
+                      id="customCarbs"
+                      name="carbs"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={
+                        customFood.carbs
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="customFat">
+                      Fat (g)
+                    </label>
+
+                    <input
+                      id="customFat"
+                      name="fat"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={
+                        customFood.fat
+                      }
+                      onChange={
+                        handleCustomFoodChange
+                      }
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="auth-button"
+                  disabled={
+                    savingCustomFood
+                  }
+                >
+                  {savingCustomFood
+                    ? 'Saving...'
+                    : 'Save Custom Food'}
+                </button>
+              </form>
+            )}
+
+            <div className="food-category-tabs">
+              {FOOD_CATEGORIES.map(
+                (category) => (
+                  <button
+                    type="button"
+                    key={
+                      category
+                    }
+                    className={
+                      selectedCategory ===
+                      category
+                        ? 'food-category-button active'
+                        : 'food-category-button'
+                    }
+                    onClick={() =>
+                      handleCategoryChange(
+                        category
+                      )
+                    }
+                  >
+                    {category}
+                  </button>
+                )
+              )}
             </div>
 
             <form
@@ -1075,7 +1585,12 @@ function Meals() {
             >
               <input
                 type="text"
-                placeholder="Search foods..."
+                placeholder={`Search ${
+                  selectedCategory ===
+                  'All'
+                    ? 'all foods'
+                    : selectedCategory.toLowerCase()
+                }...`}
                 value={
                   searchTerm
                 }
@@ -1083,8 +1598,7 @@ function Meals() {
                   event
                 ) =>
                   setSearchTerm(
-                    event.target
-                      .value
+                    event.target.value
                   )
                 }
               />
@@ -1095,6 +1609,23 @@ function Meals() {
               >
                 Search
               </button>
+
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="cancel-edit-button"
+                  onClick={async () => {
+                    setSearchTerm('')
+
+                    await loadFoods(
+                      selectedCategory,
+                      ''
+                    )
+                  }}
+                >
+                  Clear
+                </button>
+              )}
             </form>
 
             <div className="food-results">
@@ -1104,9 +1635,18 @@ function Meals() {
                 </p>
               ) : foods.length ===
                 0 ? (
-                <p className="empty-message">
-                  No foods found.
-                </p>
+                <div className="empty-meal">
+                  <h3>
+                    No foods found
+                  </h3>
+
+                  <p>
+                    Try another
+                    category, search,
+                    or add a custom
+                    food.
+                  </p>
+                </div>
               ) : (
                 foods.map(
                   (food) => (
@@ -1117,11 +1657,29 @@ function Meals() {
                       }
                     >
                       <div className="food-result-info">
-                        <h3>
-                          {
-                            food.name
-                          }
-                        </h3>
+                        <div className="food-card-heading">
+                          <h3>
+                            {
+                              food.name
+                            }
+                          </h3>
+
+                          <div className="food-card-badges">
+                            <span className="food-category-badge">
+                              {
+                                food.category
+                              }
+                            </span>
+
+                            {Boolean(
+                              food.is_custom
+                            ) && (
+                              <span className="custom-food-badge">
+                                Custom
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
                         <p>
                           {
@@ -1251,7 +1809,6 @@ function Meals() {
             <input
               id="mealName"
               type="text"
-              placeholder="Example: Chicken Rice Bowl"
               value={
                 mealName
               }
@@ -1259,10 +1816,10 @@ function Meals() {
                 event
               ) =>
                 setMealName(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
+              placeholder="Example: Chicken Rice Bowl"
             />
           </div>
 
@@ -1281,8 +1838,7 @@ function Meals() {
                   event
                 ) =>
                   setMealType(
-                    event.target
-                      .value
+                    event.target.value
                   )
                 }
               >
@@ -1290,21 +1846,19 @@ function Meals() {
                   Select meal type
                 </option>
 
-                <option value="Breakfast">
-                  Breakfast
-                </option>
-
-                <option value="Lunch">
-                  Lunch
-                </option>
-
-                <option value="Dinner">
-                  Dinner
-                </option>
-
-                <option value="Snack">
-                  Snack
-                </option>
+                {MEAL_TYPES.map(
+                  (type) => (
+                    <option
+                      key={type}
+                      value={type}
+                    >
+                      {type ===
+                      'Shake/Drink'
+                        ? 'Shake / Drink'
+                        : type}
+                    </option>
+                  )
+                )}
               </select>
             </div>
 
@@ -1323,8 +1877,7 @@ function Meals() {
                   event
                 ) =>
                   setMealDate(
-                    event.target
-                      .value
+                    event.target.value
                   )
                 }
               />
@@ -1334,135 +1887,84 @@ function Meals() {
           {entryMode ===
             'manual' && (
             <div className="manual-meal-fields">
-              <div className="form-group">
-                <label htmlFor="servingSize">
-                  Serving Size
-                </label>
+              {[
+                [
+                  'servingSize',
+                  'Serving Size'
+                ],
+                [
+                  'servingUnit',
+                  'Serving Unit'
+                ],
+                [
+                  'calories',
+                  'Calories'
+                ],
+                [
+                  'protein',
+                  'Protein (g)'
+                ],
+                [
+                  'carbs',
+                  'Carbohydrates (g)'
+                ],
+                [
+                  'fat',
+                  'Fat (g)'
+                ]
+              ].map(
+                ([
+                  name,
+                  label
+                ]) => (
+                  <div
+                    className="form-group"
+                    key={name}
+                  >
+                    <label
+                      htmlFor={
+                        name
+                      }
+                    >
+                      {label}
+                    </label>
 
-                <input
-                  id="servingSize"
-                  name="servingSize"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={
-                    manualMeal
-                      .servingSize
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="1"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="servingUnit">
-                  Serving Unit
-                </label>
-
-                <input
-                  id="servingUnit"
-                  name="servingUnit"
-                  type="text"
-                  value={
-                    manualMeal
-                      .servingUnit
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="serving"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="calories">
-                  Calories
-                </label>
-
-                <input
-                  id="calories"
-                  name="calories"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={
-                    manualMeal
-                      .calories
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="Calories"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="protein">
-                  Protein (g)
-                </label>
-
-                <input
-                  id="protein"
-                  name="protein"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={
-                    manualMeal
-                      .protein
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="Protein"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="carbs">
-                  Carbohydrates (g)
-                </label>
-
-                <input
-                  id="carbs"
-                  name="carbs"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={
-                    manualMeal
-                      .carbs
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="Carbohydrates"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="fat">
-                  Fat (g)
-                </label>
-
-                <input
-                  id="fat"
-                  name="fat"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={
-                    manualMeal
-                      .fat
-                  }
-                  onChange={
-                    handleManualChange
-                  }
-                  placeholder="Fat"
-                />
-              </div>
+                    <input
+                      id={name}
+                      name={name}
+                      type={
+                        name ===
+                        'servingUnit'
+                          ? 'text'
+                          : 'number'
+                      }
+                      min={
+                        name ===
+                        'servingUnit'
+                          ? undefined
+                          : name ===
+                              'servingSize'
+                            ? '0.01'
+                            : '0'
+                      }
+                      step={
+                        name ===
+                        'servingUnit'
+                          ? undefined
+                          : '0.1'
+                      }
+                      value={
+                        manualMeal[
+                          name
+                        ]
+                      }
+                      onChange={
+                        handleManualChange
+                      }
+                    />
+                  </div>
+                )
+              )}
             </div>
           )}
 
@@ -1480,8 +1982,9 @@ function Meals() {
 
                     <p>
                       Add foods from
-                      the search panel
-                      to get started.
+                      the library to
+                      begin building
+                      your meal.
                     </p>
                   </div>
                 ) : (
@@ -1503,8 +2006,11 @@ function Meals() {
                           </h3>
 
                           <p>
-                            1 serving
-                            ={' '}
+                            {
+                              item.food
+                                .category
+                            }{' '}
+                            •{' '}
                             {
                               item.food
                                 .serving_size
@@ -1533,8 +2039,7 @@ function Meals() {
                                 updateQuantity(
                                   item.food
                                     .food_id,
-                                  event
-                                    .target
+                                  event.target
                                     .value
                                 )
                               }
@@ -1681,8 +2186,7 @@ function Meals() {
                 event
               ) =>
                 setFilterDate(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
             />
@@ -1702,8 +2206,7 @@ function Meals() {
                 event
               ) =>
                 setFilterMealType(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
             >
@@ -1711,21 +2214,16 @@ function Meals() {
                 All Meals
               </option>
 
-              <option value="Breakfast">
-                Breakfast
-              </option>
-
-              <option value="Lunch">
-                Lunch
-              </option>
-
-              <option value="Dinner">
-                Dinner
-              </option>
-
-              <option value="Snack">
-                Snack
-              </option>
+              {MEAL_TYPES.map(
+                (type) => (
+                  <option
+                    key={type}
+                    value={type}
+                  >
+                    {type}
+                  </option>
+                )
+              )}
             </select>
           </div>
 
@@ -1753,12 +2251,6 @@ function Meals() {
             <h3>
               No meals found
             </h3>
-
-            <p>
-              Create a meal or
-              change your current
-              filters.
-            </p>
           </div>
         ) : (
           <div className="saved-meals-grid">
@@ -1780,8 +2272,9 @@ function Meals() {
 
                       <div className="saved-meal-meta">
                         <span>
-                          {meal.meal_type ||
-                            'Uncategorized'}
+                          {
+                            meal.meal_type
+                          }
                         </span>
 
                         <span>
@@ -1789,86 +2282,64 @@ function Meals() {
                             meal.meal_date
                           )}
                         </span>
-
-                        {meal.serving_size && (
-                          <span>
-                            {
-                              meal.serving_size
-                            }{' '}
-                            {meal.serving_unit ||
-                              'serving'}
-                          </span>
-                        )}
                       </div>
                     </div>
-
-                    <span>
-                      #
-                      {
-                        meal.meal_id
-                      }
-                    </span>
                   </div>
 
                   <div className="saved-meal-macros">
-                    <div>
-                      <strong>
-                        {Number(
-                          meal.calories
-                        ).toFixed(
-                          0
-                        )}
-                      </strong>
-
-                      <span>
-                        Calories
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
+                    {[
+                      [
+                        meal.calories,
+                        'Calories'
+                      ],
+                      [
+                        `${Number(
                           meal.protein
                         ).toFixed(
                           1
-                        )}
-                        g
-                      </strong>
-
-                      <span>
-                        Protein
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
+                        )}g`,
+                        'Protein'
+                      ],
+                      [
+                        `${Number(
                           meal.carbs
                         ).toFixed(
                           1
-                        )}
-                        g
-                      </strong>
-
-                      <span>
-                        Carbs
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
+                        )}g`,
+                        'Carbs'
+                      ],
+                      [
+                        `${Number(
                           meal.fat
                         ).toFixed(
                           1
-                        )}
-                        g
-                      </strong>
+                        )}g`,
+                        'Fat'
+                      ]
+                    ].map(
+                      ([
+                        value,
+                        label
+                      ]) => (
+                        <div
+                          key={
+                            label
+                          }
+                        >
+                          <strong>
+                            {
+                              value
+                            }
+                          </strong>
 
-                      <span>
-                        Fat
-                      </span>
-                    </div>
+                          <span>
+                            {
+                              label
+                            }
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
 
                   <div className="saved-meal-actions">
@@ -1930,69 +2401,57 @@ function Meals() {
             </p>
 
             <h2>
-              Today's Meals
+              Today's Logged Meals
             </h2>
-
-            <p>
-              Meals you've logged
-              today.
-            </p>
           </div>
         </div>
 
         {!loadingLogs &&
           todayLogs.length > 0 && (
             <div className="today-summary">
-              <div>
-                <strong>
-                  {todayTotals.calories.toFixed(
+              {[
+                [
+                  todayTotals.calories.toFixed(
                     0
-                  )}
-                </strong>
-
-                <span>
-                  Calories
-                </span>
-              </div>
-
-              <div>
-                <strong>
-                  {todayTotals.protein.toFixed(
+                  ),
+                  'Calories'
+                ],
+                [
+                  `${todayTotals.protein.toFixed(
                     1
-                  )}
-                  g
-                </strong>
-
-                <span>
-                  Protein
-                </span>
-              </div>
-
-              <div>
-                <strong>
-                  {todayTotals.carbs.toFixed(
+                  )}g`,
+                  'Protein'
+                ],
+                [
+                  `${todayTotals.carbs.toFixed(
                     1
-                  )}
-                  g
-                </strong>
-
-                <span>
-                  Carbs
-                </span>
-              </div>
-
-              <div>
-                <strong>
-                  {todayTotals.fat.toFixed(
+                  )}g`,
+                  'Carbs'
+                ],
+                [
+                  `${todayTotals.fat.toFixed(
                     1
-                  )}
-                  g
-                </strong>
+                  )}g`,
+                  'Fat'
+                ]
+              ].map(
+                ([
+                  value,
+                  label
+                ]) => (
+                  <div
+                    key={label}
+                  >
+                    <strong>
+                      {value}
+                    </strong>
 
-                <span>
-                  Fat
-                </span>
-              </div>
+                    <span>
+                      {label}
+                    </span>
+                  </div>
+                )
+              )}
             </div>
           )}
 
@@ -2006,12 +2465,6 @@ function Meals() {
             <h3>
               No meals logged today
             </h3>
-
-            <p>
-              Use the Log Meal
-              button on one of your
-              saved meals.
-            </p>
           </div>
         ) : (
           <div className="today-meals-grid">
@@ -2031,26 +2484,10 @@ function Meals() {
                         }
                       </h3>
 
-                      {log.meal_type && (
-                        <p>
-                          {
-                            log.meal_type
-                          }
-                        </p>
-                      )}
-
                       <p>
-                        {new Date(
-                          log.logged_at
-                        ).toLocaleTimeString(
-                          [],
-                          {
-                            hour:
-                              'numeric',
-                            minute:
-                              '2-digit'
-                          }
-                        )}
+                        {
+                          log.meal_type
+                        }
                       </p>
                     </div>
 
@@ -2065,67 +2502,6 @@ function Meals() {
                     >
                       Remove
                     </button>
-                  </div>
-
-                  <div className="saved-meal-macros">
-                    <div>
-                      <strong>
-                        {Number(
-                          log.calories
-                        ).toFixed(
-                          0
-                        )}
-                      </strong>
-
-                      <span>
-                        Calories
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
-                          log.protein
-                        ).toFixed(
-                          1
-                        )}
-                        g
-                      </strong>
-
-                      <span>
-                        Protein
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
-                          log.carbs
-                        ).toFixed(
-                          1
-                        )}
-                        g
-                      </strong>
-
-                      <span>
-                        Carbs
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {Number(
-                          log.fat
-                        ).toFixed(
-                          1
-                        )}
-                        g
-                      </strong>
-
-                      <span>
-                        Fat
-                      </span>
-                    </div>
                   </div>
                 </article>
               )

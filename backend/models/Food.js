@@ -1,66 +1,158 @@
 const pool = require('../config/db')
 
 const Food = {
-  async findAll() {
-    const [rows] = await pool.execute(
-      `SELECT
+  async findAll(userId, category = null) {
+    let query = `
+      SELECT
         food_id,
+        created_by_user_id,
         name,
+        category,
         serving_size,
         serving_unit,
         calories,
         protein,
         carbs,
-        fat
-       FROM Foods
-       ORDER BY name ASC`
-    )
+        fat,
+        CASE
+          WHEN created_by_user_id IS NULL
+          THEN 0
+          ELSE 1
+        END AS is_custom
+      FROM Foods
+      WHERE (
+        created_by_user_id IS NULL
+        OR created_by_user_id = ?
+      )
+    `
+
+    const params = [userId]
+
+    if (category) {
+      query += `
+        AND category = ?
+      `
+
+      params.push(category)
+    }
+
+    query += `
+      ORDER BY
+        category ASC,
+        name ASC
+    `
+
+    const [rows] =
+      await pool.execute(
+        query,
+        params
+      )
 
     return rows
   },
 
-  async findById(foodId) {
-    const [rows] = await pool.execute(
-      `SELECT
-        food_id,
-        name,
-        serving_size,
-        serving_unit,
-        calories,
-        protein,
-        carbs,
-        fat
-       FROM Foods
-       WHERE food_id = ?`,
-      [foodId]
-    )
+  async findById(
+    foodId,
+    userId
+  ) {
+    const [rows] =
+      await pool.execute(
+        `SELECT
+          food_id,
+          created_by_user_id,
+          name,
+          category,
+          serving_size,
+          serving_unit,
+          calories,
+          protein,
+          carbs,
+          fat,
+          CASE
+            WHEN created_by_user_id IS NULL
+            THEN 0
+            ELSE 1
+          END AS is_custom
+         FROM Foods
+         WHERE food_id = ?
+         AND (
+           created_by_user_id IS NULL
+           OR created_by_user_id = ?
+         )`,
+        [
+          foodId,
+          userId
+        ]
+      )
 
     return rows[0]
   },
 
-  async search(searchTerm) {
-    const [rows] = await pool.execute(
-      `SELECT
+  async search(
+    userId,
+    searchTerm,
+    category = null
+  ) {
+    let query = `
+      SELECT
         food_id,
+        created_by_user_id,
         name,
+        category,
         serving_size,
         serving_unit,
         calories,
         protein,
         carbs,
-        fat
-       FROM Foods
-       WHERE name LIKE ?
-       ORDER BY name ASC`,
-      [`%${searchTerm}%`]
-    )
+        fat,
+        CASE
+          WHEN created_by_user_id IS NULL
+          THEN 0
+          ELSE 1
+        END AS is_custom
+      FROM Foods
+      WHERE (
+        created_by_user_id IS NULL
+        OR created_by_user_id = ?
+      )
+      AND name LIKE ?
+    `
+
+    const params = [
+      userId,
+      `%${searchTerm}%`
+    ]
+
+    if (category) {
+      query += `
+        AND category = ?
+      `
+
+      params.push(category)
+    }
+
+    query += `
+      ORDER BY
+        category ASC,
+        name ASC
+    `
+
+    const [rows] =
+      await pool.execute(
+        query,
+        params
+      )
 
     return rows
   },
 
-  async create(foodData) {
+  async create(
+    userId,
+    foodData
+  ) {
     const {
       name,
+      category,
       servingSize,
       servingUnit,
       calories,
@@ -69,76 +161,38 @@ const Food = {
       fat = 0
     } = foodData
 
-    const [result] = await pool.execute(
-      `INSERT INTO Foods
-        (
+    const [result] =
+      await pool.execute(
+        `INSERT INTO Foods
+          (
+            created_by_user_id,
+            name,
+            category,
+            serving_size,
+            serving_unit,
+            calories,
+            protein,
+            carbs,
+            fat
+          )
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
           name,
-          serving_size,
-          serving_unit,
+          category,
+          servingSize,
+          servingUnit,
           calories,
           protein,
           carbs,
           fat
-        )
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        name,
-        servingSize,
-        servingUnit,
-        calories,
-        protein,
-        carbs,
-        fat
-      ]
+        ]
+      )
+
+    return this.findById(
+      result.insertId,
+      userId
     )
-
-    return result.insertId
-  },
-
-  async update(foodId, foodData) {
-    const {
-      name,
-      servingSize,
-      servingUnit,
-      calories,
-      protein,
-      carbs,
-      fat
-    } = foodData
-
-    const [result] = await pool.execute(
-      `UPDATE Foods
-       SET
-         name = ?,
-         serving_size = ?,
-         serving_unit = ?,
-         calories = ?,
-         protein = ?,
-         carbs = ?,
-         fat = ?
-       WHERE food_id = ?`,
-      [
-        name,
-        servingSize,
-        servingUnit,
-        calories,
-        protein,
-        carbs,
-        fat,
-        foodId
-      ]
-    )
-
-    return result.affectedRows
-  },
-
-  async delete(foodId) {
-    const [result] = await pool.execute(
-      'DELETE FROM Foods WHERE food_id = ?',
-      [foodId]
-    )
-
-    return result.affectedRows
   }
 }
 

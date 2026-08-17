@@ -1,14 +1,25 @@
-const Meal = require('../models/Meal')
-const Food = require('../models/Food')
+const Meal =
+  require('../models/Meal')
+
+const Food =
+  require('../models/Food')
 
 const mealTypes = [
   'Breakfast',
+  'Brunch',
   'Lunch',
   'Dinner',
-  'Snack'
+  'Snack',
+  'Dessert',
+  'Pre-Workout',
+  'Post-Workout',
+  'Shake/Drink'
 ]
 
-const validateItems = async (items) => {
+const validateItems = async (
+  items,
+  userId
+) => {
   if (
     !Array.isArray(items) ||
     items.length === 0
@@ -26,7 +37,9 @@ const validateItems = async (items) => {
       Number(item.quantity)
 
     if (
-      !Number.isInteger(foodId) ||
+      !Number.isInteger(
+        foodId
+      ) ||
       foodId <= 0
     ) {
       return (
@@ -35,7 +48,9 @@ const validateItems = async (items) => {
     }
 
     if (
-      !Number.isFinite(quantity) ||
+      !Number.isFinite(
+        quantity
+      ) ||
       quantity <= 0
     ) {
       return (
@@ -44,7 +59,10 @@ const validateItems = async (items) => {
     }
 
     const food =
-      await Food.findById(foodId)
+      await Food.findById(
+        foodId,
+        userId
+      )
 
     if (!food) {
       return (
@@ -65,25 +83,35 @@ const validateMealBasics = (
     !mealName ||
     !mealName.trim()
   ) {
-    return 'Meal name is required'
+    return (
+      'Meal name is required'
+    )
   }
 
   if (
-    !mealTypes.includes(mealType)
+    !mealTypes.includes(
+      mealType
+    )
   ) {
     return (
-      'Meal type must be Breakfast, Lunch, Dinner, or Snack'
+      'Please select a valid meal type'
     )
   }
 
   if (!mealDate) {
-    return 'Meal date is required'
+    return (
+      'Meal date is required'
+    )
   }
 
   const datePattern =
     /^\d{4}-\d{2}-\d{2}$/
 
-  if (!datePattern.test(mealDate)) {
+  if (
+    !datePattern.test(
+      mealDate
+    )
+  ) {
     return (
       'Meal date must use YYYY-MM-DD format'
     )
@@ -122,14 +150,18 @@ const validateManualMeal = (
 
   for (
     const [name, value]
-    of Object.entries(nutrients)
+    of Object.entries(
+      nutrients
+    )
   ) {
     if (
       value === '' ||
       value === null ||
       value === undefined
     ) {
-      return `${name} is required`
+      return (
+        `${name} is required`
+      )
     }
 
     const numericValue =
@@ -178,6 +210,45 @@ const getMeals = async (
   }
 }
 
+const getMeal = async (
+  req,
+  res
+) => {
+  try {
+    const meal =
+      await Meal.findById(
+        Number(
+          req.params.mealId
+        ),
+        req.user.userId
+      )
+
+    if (!meal) {
+      return res.status(404).json({
+        success: false,
+        message:
+          'Meal not found'
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      meal
+    })
+  } catch (error) {
+    console.error(
+      'Get meal error:',
+      error
+    )
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Unable to retrieve meal'
+    })
+  }
+}
+
 const createMeal = async (
   req,
   res
@@ -210,13 +281,16 @@ const createMeal = async (
     if (basicError) {
       return res.status(400).json({
         success: false,
-        message: basicError
+        message:
+          basicError
       })
     }
 
     let mealId
 
-    if (entryMode === 'manual') {
+    if (
+      entryMode === 'manual'
+    ) {
       const manualError =
         validateManualMeal(
           servingSize,
@@ -229,7 +303,8 @@ const createMeal = async (
       if (manualError) {
         return res.status(400).json({
           success: false,
-          message: manualError
+          message:
+            manualError
         })
       }
 
@@ -244,10 +319,13 @@ const createMeal = async (
             mealDate,
 
             servingSize:
-              Number(servingSize),
+              Number(
+                servingSize
+              ),
 
             servingUnit:
-              servingUnit?.trim() ||
+              servingUnit
+                ?.trim() ||
               'serving',
 
             calories:
@@ -267,12 +345,16 @@ const createMeal = async (
       entryMode === 'builder'
     ) {
       const itemError =
-        await validateItems(items)
+        await validateItems(
+          items,
+          userId
+        )
 
       if (itemError) {
         return res.status(400).json({
           success: false,
-          message: itemError
+          message:
+            itemError
         })
       }
 
@@ -327,7 +409,9 @@ const updateMeal = async (
       req.user.userId
 
     const mealId =
-      Number(req.params.mealId)
+      Number(
+        req.params.mealId
+      )
 
     const {
       entryMode = 'builder',
@@ -353,13 +437,16 @@ const updateMeal = async (
     if (basicError) {
       return res.status(400).json({
         success: false,
-        message: basicError
+        message:
+          basicError
       })
     }
 
     let updated
 
-    if (entryMode === 'manual') {
+    if (
+      entryMode === 'manual'
+    ) {
       const manualError =
         validateManualMeal(
           servingSize,
@@ -372,7 +459,8 @@ const updateMeal = async (
       if (manualError) {
         return res.status(400).json({
           success: false,
-          message: manualError
+          message:
+            manualError
         })
       }
 
@@ -388,10 +476,13 @@ const updateMeal = async (
             mealDate,
 
             servingSize:
-              Number(servingSize),
+              Number(
+                servingSize
+              ),
 
             servingUnit:
-              servingUnit?.trim() ||
+              servingUnit
+                ?.trim() ||
               'serving',
 
             calories:
@@ -411,12 +502,16 @@ const updateMeal = async (
       entryMode === 'builder'
     ) {
       const itemError =
-        await validateItems(items)
+        await validateItems(
+          items,
+          userId
+        )
 
       if (itemError) {
         return res.status(400).json({
           success: false,
-          message: itemError
+          message:
+            itemError
         })
       }
 
@@ -440,7 +535,8 @@ const updateMeal = async (
     if (!updated) {
       return res.status(404).json({
         success: false,
-        message: 'Meal not found'
+        message:
+          'Meal not found'
       })
     }
 
@@ -475,16 +571,12 @@ const deleteMeal = async (
   res
 ) => {
   try {
-    const userId =
-      req.user.userId
-
-    const mealId =
-      Number(req.params.mealId)
-
     const deleted =
       await Meal.delete(
-        mealId,
-        userId
+        Number(
+          req.params.mealId
+        ),
+        req.user.userId
       )
 
     if (!deleted) {
@@ -510,49 +602,6 @@ const deleteMeal = async (
       success: false,
       message:
         'Unable to delete meal'
-    })
-  }
-}
-
-const getMeal = async (
-  req,
-  res
-) => {
-  try {
-    const userId =
-      req.user.userId
-
-    const mealId =
-      Number(req.params.mealId)
-
-    const meal =
-      await Meal.findById(
-        mealId,
-        userId
-      )
-
-    if (!meal) {
-      return res.status(404).json({
-        success: false,
-        message:
-          'Meal not found'
-      })
-    }
-
-    return res.status(200).json({
-      success: true,
-      meal
-    })
-  } catch (error) {
-    console.error(
-      'Get meal error:',
-      error
-    )
-
-    return res.status(500).json({
-      success: false,
-      message:
-        'Unable to retrieve meal'
     })
   }
 }
