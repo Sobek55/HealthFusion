@@ -56,7 +56,7 @@ function Register() {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && (
-            <div className="auth-error">
+            <div className="auth-error" role="alert">
               {error}
             </div>
           )}
