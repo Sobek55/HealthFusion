@@ -4,17 +4,59 @@
 
 html {
   scroll-behavior: smooth;
+  background: #f3f8f5;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+  background: #f3f8f5;
+  color: #14261d;
   font-family:
-    Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #edf4ef;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid #edf4ef;
+  border-radius: 999px;
+  background: #a8c5b4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7ca58d;
 }

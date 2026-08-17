@@ -11,7 +11,7 @@ import {
 import {
   getCurrentUser,
   getNutritionGoals,
-  getMealLogs,
+  getMeals,
   getProfile,
   getWeightHistory,
   saveWeightEntry,
@@ -21,8 +21,7 @@ import {
 const getTodayDate = () => {
   const now = new Date()
 
-  const year =
-    now.getFullYear()
+  const year = now.getFullYear()
 
   const month = String(
     now.getMonth() + 1
@@ -35,7 +34,38 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`
 }
 
-const getStartOfPeriod = (
+const toDateInputValue = (value) => {
+  if (!value) {
+    return ''
+  }
+
+  if (
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}/.test(value)
+  ) {
+    return value.slice(0, 10)
+  }
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const year = date.getFullYear()
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, '0')
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+const getPeriodStartDate = (
   period
 ) => {
   const now = new Date()
@@ -60,7 +90,18 @@ const getStartOfPeriod = (
     now.setDate(1)
   }
 
-  return now
+  const year =
+    now.getFullYear()
+
+  const month = String(
+    now.getMonth() + 1
+  ).padStart(2, '0')
+
+  const day = String(
+    now.getDate()
+  ).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 const getGoalMultiplier = (
@@ -84,18 +125,18 @@ const getGoalMultiplier = (
 }
 
 const formatDate = (value) => {
-  if (!value) {
+  const dateValue =
+    toDateInputValue(value)
+
+  if (!dateValue) {
     return ''
   }
-
-  const dateString =
-    String(value).slice(0, 10)
 
   const [
     year,
     month,
     day
-  ] = dateString.split('-')
+  ] = dateValue.split('-')
 
   return new Date(
     Number(year),
@@ -114,7 +155,7 @@ function Dashboard() {
   const [goals, setGoals] =
     useState(null)
 
-  const [mealLogs, setMealLogs] =
+  const [meals, setMeals] =
     useState([])
 
   const [
@@ -160,13 +201,13 @@ function Dashboard() {
           const [
             userData,
             goalData,
-            logData,
+            mealData,
             profileData,
             weightData
           ] = await Promise.all([
             getCurrentUser(),
             getNutritionGoals(),
-            getMealLogs(),
+            getMeals(),
             getProfile(),
             getWeightHistory()
           ])
@@ -179,8 +220,8 @@ function Dashboard() {
             goalData.goals
           )
 
-          setMealLogs(
-            logData.logs || []
+          setMeals(
+            mealData.meals || []
           )
 
           setProfile(
@@ -204,51 +245,62 @@ function Dashboard() {
     loadDashboard()
   }, [])
 
-  const periodLogs =
+  const periodMeals =
     useMemo(() => {
-      const start =
-        getStartOfPeriod(
+      const startDate =
+        getPeriodStartDate(
           selectedPeriod
         )
 
-      return mealLogs.filter(
-        (log) => {
-          const logDate =
-            new Date(
-              log.logged_at
+      const today =
+        getTodayDate()
+
+      return meals.filter(
+        (meal) => {
+          const mealDate =
+            toDateInputValue(
+              meal.meal_date
             )
 
-          return logDate >= start
+          if (!mealDate) {
+            return false
+          }
+
+          return (
+            mealDate >=
+              startDate &&
+            mealDate <= today
+          )
         }
       )
     }, [
-      mealLogs,
+      meals,
       selectedPeriod
     ])
 
   const totals =
     useMemo(() => {
-      return periodLogs.reduce(
-        (total, log) => {
+      return periodMeals.reduce(
+        (total, meal) => {
           total.calories +=
             Number(
-              log.calories
-            )
+              meal.calories
+            ) || 0
 
           total.protein +=
             Number(
-              log.protein
-            )
+              meal.protein
+            ) || 0
 
           total.carbs +=
             Number(
-              log.carbs
-            )
+              meal.carbs
+            ) || 0
 
           total.fat +=
             Number(
-              log.fat
-            )
+              meal.fat
+            ) || 0
 
           return total
         },
@@ -259,7 +311,7 @@ function Dashboard() {
           fat: 0
         }
       )
-    }, [periodLogs])
+    }, [periodMeals])
 
   const goalMultiplier =
     getGoalMultiplier(
@@ -329,9 +381,8 @@ function Dashboard() {
 
   const recentMeals =
     useMemo(
-      () =>
-        mealLogs.slice(0, 5),
-      [mealLogs]
+      () => meals.slice(0, 5),
+      [meals]
     )
 
   const latestWeight =
@@ -460,13 +511,11 @@ function Dashboard() {
         setSavingWeight(true)
 
         const data =
-          await saveWeightEntry(
-            {
-              weight,
-              recordedDate:
-                weightForm.recordedDate
-            }
-          )
+          await saveWeightEntry({
+            weight,
+            recordedDate:
+              weightForm.recordedDate
+          })
 
         setMessage(
           data.message ||
@@ -1141,7 +1190,7 @@ function Dashboard() {
               </h2>
 
               <p>
-                Your latest logged
+                Your latest recorded
                 meals.
               </p>
             </div>
@@ -1158,7 +1207,7 @@ function Dashboard() {
           0 ? (
             <div className="dashboard-empty">
               <h3>
-                No meals logged
+                No meals recorded
               </h3>
 
               <p>
@@ -1169,31 +1218,37 @@ function Dashboard() {
           ) : (
             <div className="dashboard-meal-list">
               {recentMeals.map(
-                (log) => (
+                (meal) => (
                   <div
                     className="dashboard-meal"
                     key={
-                      log.log_id
+                      meal.meal_id
                     }
                   >
                     <div>
                       <h3>
                         {
-                          log.meal_name
+                          meal.meal_name
                         }
                       </h3>
 
                       <p>
-                        {log.meal_type
-                          ? `${log.meal_type} • `
+                        {meal.meal_type
+                          ? `${meal.meal_type} • `
                           : ''}
 
                         {Math.round(
                           Number(
-                            log.calories
-                          )
+                            meal.calories
+                          ) || 0
                         )}{' '}
                         kcal
+                      </p>
+
+                      <p>
+                        {formatDate(
+                          meal.meal_date
+                        )}
                       </p>
                     </div>
 
@@ -1201,7 +1256,8 @@ function Dashboard() {
                       <span>
                         P{' '}
                         {Number(
-                          log.protein
+                          meal.protein ||
+                            0
                         ).toFixed(
                           1
                         )}
@@ -1211,7 +1267,8 @@ function Dashboard() {
                       <span>
                         C{' '}
                         {Number(
-                          log.carbs
+                          meal.carbs ||
+                            0
                         ).toFixed(
                           1
                         )}
@@ -1221,7 +1278,8 @@ function Dashboard() {
                       <span>
                         F{' '}
                         {Number(
-                          log.fat
+                          meal.fat ||
+                            0
                         ).toFixed(
                           1
                         )}

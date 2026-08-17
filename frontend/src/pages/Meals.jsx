@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 
 import {
   getFoods,
@@ -16,10 +20,13 @@ import {
 const getTodayDate = () => {
   const now = new Date()
 
-  const year = now.getFullYear()
+  const year =
+    now.getFullYear()
+
   const month = String(
     now.getMonth() + 1
   ).padStart(2, '0')
+
   const day = String(
     now.getDate()
   ).padStart(2, '0')
@@ -27,28 +34,40 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`
 }
 
-const toDateInputValue = (value) => {
+const toDateInputValue = (
+  value
+) => {
   if (!value) {
     return ''
   }
 
   if (
     typeof value === 'string' &&
-    /^\d{4}-\d{2}-\d{2}/.test(value)
+    /^\d{4}-\d{2}-\d{2}/.test(
+      value
+    )
   ) {
     return value.slice(0, 10)
   }
 
-  const date = new Date(value)
+  const date =
+    new Date(value)
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return ''
   }
 
-  const year = date.getFullYear()
+  const year =
+    date.getFullYear()
+
   const month = String(
     date.getMonth() + 1
   ).padStart(2, '0')
+
   const day = String(
     date.getDate()
   ).padStart(2, '0')
@@ -56,15 +75,21 @@ const toDateInputValue = (value) => {
   return `${year}-${month}-${day}`
 }
 
-const displayMealDate = (value) => {
-  const dateValue = toDateInputValue(value)
+const displayMealDate = (
+  value
+) => {
+  const dateValue =
+    toDateInputValue(value)
 
   if (!dateValue) {
     return 'No date'
   }
 
-  const [year, month, day] =
-    dateValue.split('-')
+  const [
+    year,
+    month,
+    day
+  ] = dateValue.split('-')
 
   return new Date(
     Number(year),
@@ -74,50 +99,74 @@ const displayMealDate = (value) => {
 }
 
 function Meals() {
-  const [mealName, setMealName] =
-    useState('')
+  const [
+    mealName,
+    setMealName
+  ] = useState('')
 
-  const [entryMode, setEntryMode] =
-    useState('builder')
+  const [
+    entryMode,
+    setEntryMode
+  ] = useState('manual')
 
-  const [mealType, setMealType] =
-    useState('')
+  const [
+    mealType,
+    setMealType
+  ] = useState('')
 
-  const [mealDate, setMealDate] =
-    useState(getTodayDate())
+  const [
+    mealDate,
+    setMealDate
+  ] = useState(
+    getTodayDate()
+  )
 
-  const [manualMeal, setManualMeal] =
-    useState({
-      servingSize: '',
-      servingUnit: 'serving',
-      calories: '',
-      protein: '',
-      carbs: '',
-      fat: ''
-    })
+  const [
+    manualMeal,
+    setManualMeal
+  ] = useState({
+    servingSize: '',
+    servingUnit: 'serving',
+    calories: '',
+    protein: '',
+    carbs: '',
+    fat: ''
+  })
 
-  const [filterDate, setFilterDate] =
-    useState('')
+  const [
+    filterDate,
+    setFilterDate
+  ] = useState('')
 
   const [
     filterMealType,
     setFilterMealType
   ] = useState('All')
 
-  const [searchTerm, setSearchTerm] =
-    useState('')
+  const [
+    searchTerm,
+    setSearchTerm
+  ] = useState('')
 
-  const [foods, setFoods] =
-    useState([])
+  const [
+    foods,
+    setFoods
+  ] = useState([])
 
-  const [mealItems, setMealItems] =
-    useState([])
+  const [
+    mealItems,
+    setMealItems
+  ] = useState([])
 
-  const [savedMeals, setSavedMeals] =
-    useState([])
+  const [
+    savedMeals,
+    setSavedMeals
+  ] = useState([])
 
-  const [todayLogs, setTodayLogs] =
-    useState([])
+  const [
+    todayLogs,
+    setTodayLogs
+  ] = useState([])
 
   const [
     editingMealId,
@@ -139,19 +188,25 @@ function Meals() {
     setLoadingLogs
   ] = useState(true)
 
-  const [saving, setSaving] =
-    useState(false)
+  const [
+    saving,
+    setSaving
+  ] = useState(false)
 
   const [
     loggingMealId,
     setLoggingMealId
   ] = useState(null)
 
-  const [error, setError] =
-    useState('')
+  const [
+    error,
+    setError
+  ] = useState('')
 
-  const [success, setSuccess] =
-    useState('')
+  const [
+    success,
+    setSuccess
+  ] = useState('')
 
   useEffect(() => {
     loadFoods()
@@ -159,76 +214,98 @@ function Meals() {
     loadTodayLogs()
   }, [])
 
-  const loadFoods = async () => {
-    try {
-      setLoadingFoods(true)
+  const loadFoods =
+    async () => {
+      try {
+        setLoadingFoods(true)
 
-      const data = await getFoods()
+        const data =
+          await getFoods()
 
-      setFoods(data.foods || [])
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoadingFoods(false)
-    }
-  }
-
-  const loadMeals = async () => {
-    try {
-      setLoadingMeals(true)
-
-      const data = await getMeals()
-
-      setSavedMeals(data.meals || [])
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoadingMeals(false)
-    }
-  }
-
-  const loadTodayLogs = async () => {
-    try {
-      setLoadingLogs(true)
-
-      const data =
-        await getTodayMealLogs()
-
-      setTodayLogs(data.logs || [])
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoadingLogs(false)
-    }
-  }
-
-  const handleSearch = async (
-    event
-  ) => {
-    event.preventDefault()
-
-    try {
-      setLoadingFoods(true)
-      setError('')
-      setSuccess('')
-
-      if (!searchTerm.trim()) {
-        await loadFoods()
-        return
-      }
-
-      const data =
-        await searchFoods(
-          searchTerm.trim()
+        setFoods(
+          data.foods || []
         )
-
-      setFoods(data.foods || [])
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoadingFoods(false)
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setLoadingFoods(false)
+      }
     }
-  }
+
+  const loadMeals =
+    async () => {
+      try {
+        setLoadingMeals(true)
+
+        const data =
+          await getMeals()
+
+        setSavedMeals(
+          data.meals || []
+        )
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setLoadingMeals(false)
+      }
+    }
+
+  const loadTodayLogs =
+    async () => {
+      try {
+        setLoadingLogs(true)
+
+        const data =
+          await getTodayMealLogs()
+
+        setTodayLogs(
+          data.logs || []
+        )
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setLoadingLogs(false)
+      }
+    }
+
+  const handleSearch =
+    async (event) => {
+      event.preventDefault()
+
+      try {
+        setLoadingFoods(true)
+        setError('')
+        setSuccess('')
+
+        if (
+          !searchTerm.trim()
+        ) {
+          await loadFoods()
+          return
+        }
+
+        const data =
+          await searchFoods(
+            searchTerm.trim()
+          )
+
+        setFoods(
+          data.foods || []
+        )
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setLoadingFoods(false)
+      }
+    }
 
   const addFood = (food) => {
     setError('')
@@ -239,17 +316,20 @@ function Meals() {
         const existingItem =
           currentItems.find(
             (item) =>
-              item.food.food_id ===
+              item.food
+                .food_id ===
               food.food_id
           )
 
         if (existingItem) {
           return currentItems.map(
             (item) =>
-              item.food.food_id ===
+              item.food
+                .food_id ===
               food.food_id
                 ? {
                     ...item,
+
                     quantity:
                       Number(
                         item.quantity
@@ -274,10 +354,13 @@ function Meals() {
     foodId,
     value
   ) => {
-    const quantity = Number(value)
+    const quantity =
+      Number(value)
 
     if (
-      Number.isNaN(quantity) ||
+      Number.isNaN(
+        quantity
+      ) ||
       quantity <= 0
     ) {
       return
@@ -287,7 +370,8 @@ function Meals() {
       (currentItems) =>
         currentItems.map(
           (item) =>
-            item.food.food_id ===
+            item.food
+              .food_id ===
             foodId
               ? {
                   ...item,
@@ -298,53 +382,59 @@ function Meals() {
     )
   }
 
-  const removeFood = (foodId) => {
+  const removeFood = (
+    foodId
+  ) => {
     setMealItems(
       (currentItems) =>
         currentItems.filter(
           (item) =>
-            item.food.food_id !==
+            item.food
+              .food_id !==
             foodId
         )
     )
   }
 
-  const totals = useMemo(() => {
-    return mealItems.reduce(
-      (total, item) => {
-        const quantity =
-          Number(item.quantity)
+  const totals =
+    useMemo(() => {
+      return mealItems.reduce(
+        (total, item) => {
+          const quantity =
+            Number(
+              item.quantity
+            )
 
-        total.calories +=
-          Number(
-            item.food.calories
-          ) * quantity
+          total.calories +=
+            Number(
+              item.food.calories
+            ) * quantity
 
-        total.protein +=
-          Number(
-            item.food.protein
-          ) * quantity
+          total.protein +=
+            Number(
+              item.food.protein
+            ) * quantity
 
-        total.carbs +=
-          Number(
-            item.food.carbs
-          ) * quantity
+          total.carbs +=
+            Number(
+              item.food.carbs
+            ) * quantity
 
-        total.fat +=
-          Number(
-            item.food.fat
-          ) * quantity
+          total.fat +=
+            Number(
+              item.food.fat
+            ) * quantity
 
-        return total
-      },
-      {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0
-      }
-    )
-  }, [mealItems])
+          return total
+        },
+        {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0
+        }
+      )
+    }, [mealItems])
 
   const todayTotals =
     useMemo(() => {
@@ -416,10 +506,16 @@ function Meals() {
   const resetBuilder = () => {
     setMealName('')
     setMealType('')
-    setMealDate(getTodayDate())
+    setMealDate(
+      getTodayDate()
+    )
+
     setMealItems([])
     setEditingMealId(null)
-    setEntryMode('builder')
+
+    setEntryMode(
+      'manual'
+    )
 
     setManualMeal({
       servingSize: '',
@@ -434,8 +530,10 @@ function Meals() {
   const handleManualChange = (
     event
   ) => {
-    const { name, value } =
-      event.target
+    const {
+      name,
+      value
+    } = event.target
 
     setManualMeal(
       (current) => ({
@@ -448,360 +546,443 @@ function Meals() {
     setSuccess('')
   }
 
-  const handleSaveMeal = async () => {
-    setError('')
-    setSuccess('')
-
-    if (!mealName.trim()) {
-      setError(
-        'Please enter a meal name.'
-      )
-      return
-    }
-
-    if (!mealType) {
-      setError(
-        'Please select a meal type.'
-      )
-      return
-    }
-
-    if (!mealDate) {
-      setError(
-        'Please select a meal date.'
-      )
-      return
-    }
-
-    let mealData
-
-    if (entryMode === 'builder') {
-      if (mealItems.length === 0) {
-        setError(
-          'Add at least one food to your meal.'
-        )
-        return
-      }
-
-      mealData = {
-        entryMode: 'builder',
-        mealName:
-          mealName.trim(),
-        mealType,
-        mealDate,
-
-        items: mealItems.map(
-          (item) => ({
-            foodId:
-              item.food.food_id,
-
-            quantity:
-              Number(
-                item.quantity
-              )
-          })
-        )
-      }
-    } else {
-      const {
-        servingSize,
-        servingUnit,
-        calories,
-        protein,
-        carbs,
-        fat
-      } = manualMeal
-
-      if (
-        servingSize === '' ||
-        !Number.isFinite(
-          Number(servingSize)
-        ) ||
-        Number(servingSize) <= 0
-      ) {
-        setError(
-          'Serving size must be greater than zero.'
-        )
-        return
-      }
-
-      const nutritionValues = [
-        {
-          name: 'Calories',
-          value: calories
-        },
-        {
-          name: 'Protein',
-          value: protein
-        },
-        {
-          name: 'Carbohydrates',
-          value: carbs
-        },
-        {
-          name: 'Fat',
-          value: fat
-        }
-      ]
-
-      for (
-        const field
-        of nutritionValues
-      ) {
-        if (
-          field.value === '' ||
-          !Number.isFinite(
-            Number(field.value)
-          ) ||
-          Number(field.value) < 0
-        ) {
-          setError(
-            `${field.name} must be zero or greater.`
-          )
-          return
-        }
-      }
-
-      mealData = {
-        entryMode: 'manual',
-
-        mealName:
-          mealName.trim(),
-
-        mealType,
-        mealDate,
-
-        servingSize:
-          Number(servingSize),
-
-        servingUnit:
-          servingUnit.trim() ||
-          'serving',
-
-        calories:
-          Number(calories),
-
-        protein:
-          Number(protein),
-
-        carbs:
-          Number(carbs),
-
-        fat:
-          Number(fat)
-      }
-    }
-
-    try {
-      setSaving(true)
-
-      if (editingMealId) {
-        await updateMeal(
-          editingMealId,
-          mealData
-        )
-
-        setSuccess(
-          'Meal updated successfully.'
-        )
-      } else {
-        await createMeal(
-          mealData
-        )
-
-        setSuccess(
-          'Meal saved successfully.'
-        )
-      }
-
-      resetBuilder()
-
-      await loadMeals()
-      await loadTodayLogs()
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleEditMeal = async (
-    mealId
-  ) => {
-    try {
+  const handleSaveMeal =
+    async () => {
       setError('')
       setSuccess('')
 
-      const data =
-        await getMeal(mealId)
+      if (
+        !mealName.trim()
+      ) {
+        setError(
+          'Please enter a meal name.'
+        )
 
-      const meal = data.meal
+        return
+      }
 
-      setEditingMealId(
-        meal.meal_id
-      )
+      if (!mealType) {
+        setError(
+          'Please select a meal type.'
+        )
 
-      setMealName(
-        meal.meal_name || ''
-      )
+        return
+      }
 
-      setMealType(
-        meal.meal_type || ''
-      )
+      if (!mealDate) {
+        setError(
+          'Please select a meal date.'
+        )
 
-      setMealDate(
-        toDateInputValue(
-          meal.meal_date
-        ) || getTodayDate()
-      )
+        return
+      }
 
-      const isManual =
-        meal.calories !== null &&
-        meal.calories !==
-          undefined
+      let mealData
 
-      if (isManual) {
-        setEntryMode('manual')
-        setMealItems([])
+      if (
+        entryMode ===
+        'builder'
+      ) {
+        if (
+          mealItems.length ===
+          0
+        ) {
+          setError(
+            'Add at least one food to your meal.'
+          )
 
-        setManualMeal({
+          return
+        }
+
+        mealData = {
+          entryMode:
+            'builder',
+
+          mealName:
+            mealName.trim(),
+
+          mealType,
+          mealDate,
+
+          items:
+            mealItems.map(
+              (item) => ({
+                foodId:
+                  item.food
+                    .food_id,
+
+                quantity:
+                  Number(
+                    item.quantity
+                  )
+              })
+            )
+        }
+      } else {
+        const {
+          servingSize,
+          servingUnit,
+          calories,
+          protein,
+          carbs,
+          fat
+        } = manualMeal
+
+        if (
+          servingSize === '' ||
+          !Number.isFinite(
+            Number(
+              servingSize
+            )
+          ) ||
+          Number(
+            servingSize
+          ) <= 0
+        ) {
+          setError(
+            'Serving size must be greater than zero.'
+          )
+
+          return
+        }
+
+        const nutritionValues = [
+          {
+            name:
+              'Calories',
+            value:
+              calories
+          },
+          {
+            name:
+              'Protein',
+            value:
+              protein
+          },
+          {
+            name:
+              'Carbohydrates',
+            value:
+              carbs
+          },
+          {
+            name:
+              'Fat',
+            value:
+              fat
+          }
+        ]
+
+        for (
+          const field of
+          nutritionValues
+        ) {
+          if (
+            field.value === '' ||
+            !Number.isFinite(
+              Number(
+                field.value
+              )
+            ) ||
+            Number(
+              field.value
+            ) < 0
+          ) {
+            setError(
+              `${field.name} must be zero or greater.`
+            )
+
+            return
+          }
+        }
+
+        mealData = {
+          entryMode:
+            'manual',
+
+          mealName:
+            mealName.trim(),
+
+          mealType,
+          mealDate,
+
           servingSize:
-            meal.serving_size ??
-            '',
+            Number(
+              servingSize
+            ),
 
           servingUnit:
-            meal.serving_unit ||
+            servingUnit.trim() ||
             'serving',
 
           calories:
-            meal.calories ?? '',
+            Number(
+              calories
+            ),
 
           protein:
-            meal.protein ?? '',
+            Number(
+              protein
+            ),
 
           carbs:
-            meal.carbs ?? '',
+            Number(
+              carbs
+            ),
 
           fat:
-            meal.fat ?? ''
-        })
-      } else {
-        setEntryMode('builder')
+            Number(
+              fat
+            )
+        }
+      }
 
-        setManualMeal({
-          servingSize: '',
-          servingUnit: 'serving',
-          calories: '',
-          protein: '',
-          carbs: '',
-          fat: ''
-        })
+      try {
+        setSaving(true)
 
-        setMealItems(
-          (meal.items || []).map(
-            (item) => ({
-              food: {
-                food_id:
-                  item.food_id,
-
-                name:
-                  item.name,
-
-                serving_size:
-                  item.serving_size,
-
-                serving_unit:
-                  item.serving_unit,
-
-                calories:
-                  item.calories,
-
-                protein:
-                  item.protein,
-
-                carbs:
-                  item.carbs,
-
-                fat:
-                  item.fat
-              },
-
-              quantity:
-                Number(
-                  item.quantity
-                )
-            })
+        if (
+          editingMealId
+        ) {
+          await updateMeal(
+            editingMealId,
+            mealData
           )
+
+          setSuccess(
+            'Meal updated successfully.'
+          )
+        } else {
+          await createMeal(
+            mealData
+          )
+
+          setSuccess(
+            'Meal saved successfully.'
+          )
+        }
+
+        resetBuilder()
+
+        await loadMeals()
+        await loadTodayLogs()
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setSaving(false)
+      }
+    }
+
+  const handleEditMeal =
+    async (mealId) => {
+      try {
+        setError('')
+        setSuccess('')
+
+        const data =
+          await getMeal(
+            mealId
+          )
+
+        const meal =
+          data.meal
+
+        setEditingMealId(
+          meal.meal_id
+        )
+
+        setMealName(
+          meal.meal_name ||
+            ''
+        )
+
+        setMealType(
+          meal.meal_type ||
+            ''
+        )
+
+        setMealDate(
+          toDateInputValue(
+            meal.meal_date
+          ) ||
+            getTodayDate()
+        )
+
+        const isManual =
+          meal.calories !==
+            null &&
+          meal.calories !==
+            undefined
+
+        if (isManual) {
+          setEntryMode(
+            'manual'
+          )
+
+          setMealItems([])
+
+          setManualMeal({
+            servingSize:
+              meal.serving_size ??
+              '',
+
+            servingUnit:
+              meal.serving_unit ||
+              'serving',
+
+            calories:
+              meal.calories ??
+              '',
+
+            protein:
+              meal.protein ??
+              '',
+
+            carbs:
+              meal.carbs ??
+              '',
+
+            fat:
+              meal.fat ??
+              ''
+          })
+        } else {
+          setEntryMode(
+            'builder'
+          )
+
+          setManualMeal({
+            servingSize: '',
+            servingUnit:
+              'serving',
+            calories: '',
+            protein: '',
+            carbs: '',
+            fat: ''
+          })
+
+          setMealItems(
+            (
+              meal.items ||
+              []
+            ).map(
+              (item) => ({
+                food: {
+                  food_id:
+                    item.food_id,
+
+                  name:
+                    item.name,
+
+                  serving_size:
+                    item.serving_size,
+
+                  serving_unit:
+                    item.serving_unit,
+
+                  calories:
+                    item.calories,
+
+                  protein:
+                    item.protein,
+
+                  carbs:
+                    item.carbs,
+
+                  fat:
+                    item.fat
+                },
+
+                quantity:
+                  Number(
+                    item.quantity
+                  )
+              })
+            )
+          )
+        }
+
+        window.scrollTo({
+          top: 0,
+          behavior:
+            'smooth'
+        })
+      } catch (error) {
+        setError(
+          error.message
         )
       }
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    } catch (error) {
-      setError(error.message)
-    }
-  }
-
-  const handleDeleteMeal = async (
-    mealId
-  ) => {
-    const confirmed =
-      window.confirm(
-        'Are you sure you want to delete this meal?'
-      )
-
-    if (!confirmed) {
-      return
     }
 
-    try {
-      setError('')
-      setSuccess('')
+  const handleDeleteMeal =
+    async (mealId) => {
+      const confirmed =
+        window.confirm(
+          'Are you sure you want to delete this meal?'
+        )
 
-      await deleteMeal(mealId)
-
-      if (
-        editingMealId === mealId
-      ) {
-        resetBuilder()
+      if (!confirmed) {
+        return
       }
 
-      setSuccess(
-        'Meal deleted successfully.'
-      )
+      try {
+        setError('')
+        setSuccess('')
 
-      await loadMeals()
-      await loadTodayLogs()
-    } catch (error) {
-      setError(error.message)
+        await deleteMeal(
+          mealId
+        )
+
+        if (
+          editingMealId ===
+          mealId
+        ) {
+          resetBuilder()
+        }
+
+        setSuccess(
+          'Meal deleted successfully.'
+        )
+
+        await loadMeals()
+        await loadTodayLogs()
+      } catch (error) {
+        setError(
+          error.message
+        )
+      }
     }
-  }
 
-  const handleLogMeal = async (
-    mealId
-  ) => {
-    try {
-      setError('')
-      setSuccess('')
-      setLoggingMealId(
-        mealId
-      )
+  const handleLogMeal =
+    async (mealId) => {
+      try {
+        setError('')
+        setSuccess('')
 
-      await logMeal(mealId)
+        setLoggingMealId(
+          mealId
+        )
 
-      setSuccess(
-        'Meal logged for today.'
-      )
+        await logMeal(
+          mealId
+        )
 
-      await loadTodayLogs()
-    } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoggingMealId(null)
+        setSuccess(
+          'Meal logged for today.'
+        )
+
+        await loadTodayLogs()
+      } catch (error) {
+        setError(
+          error.message
+        )
+      } finally {
+        setLoggingMealId(
+          null
+        )
+      }
     }
-  }
 
   const handleDeleteMealLog =
     async (logId) => {
@@ -828,7 +1009,9 @@ function Meals() {
 
         await loadTodayLogs()
       } catch (error) {
-        setError(error.message)
+        setError(
+          error.message
+        )
       }
     }
 
@@ -847,9 +1030,10 @@ function Meals() {
           </h1>
 
           <p>
-            Build a meal using foods or
-            quickly enter nutrition
-            information manually.
+            Build a meal using
+            foods or quickly enter
+            nutrition information
+            manually.
           </p>
         </div>
       </section>
@@ -872,7 +1056,9 @@ function Meals() {
           <section className="food-search-panel">
             <div className="meal-panel-header">
               <div>
-                <h2>Find Foods</h2>
+                <h2>
+                  Find Foods
+                </h2>
 
                 <p>
                   Add ingredients to
@@ -890,7 +1076,9 @@ function Meals() {
               <input
                 type="text"
                 placeholder="Search foods..."
-                value={searchTerm}
+                value={
+                  searchTerm
+                }
                 onChange={(
                   event
                 ) =>
@@ -1012,8 +1200,9 @@ function Meals() {
               </h2>
 
               <p>
-                Enter the meal details
-                before saving.
+                Enter the meal
+                details before
+                saving.
               </p>
             </div>
           </div>
@@ -1063,12 +1252,15 @@ function Meals() {
               id="mealName"
               type="text"
               placeholder="Example: Chicken Rice Bowl"
-              value={mealName}
+              value={
+                mealName
+              }
               onChange={(
                 event
               ) =>
                 setMealName(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
             />
@@ -1082,7 +1274,9 @@ function Meals() {
 
               <select
                 id="mealType"
-                value={mealType}
+                value={
+                  mealType
+                }
                 onChange={(
                   event
                 ) =>
@@ -1122,7 +1316,9 @@ function Meals() {
               <input
                 id="mealDate"
                 type="date"
-                value={mealDate}
+                value={
+                  mealDate
+                }
                 onChange={(
                   event
                 ) =>
@@ -1150,7 +1346,8 @@ function Meals() {
                   min="0.01"
                   step="0.01"
                   value={
-                    manualMeal.servingSize
+                    manualMeal
+                      .servingSize
                   }
                   onChange={
                     handleManualChange
@@ -1169,7 +1366,8 @@ function Meals() {
                   name="servingUnit"
                   type="text"
                   value={
-                    manualMeal.servingUnit
+                    manualMeal
+                      .servingUnit
                   }
                   onChange={
                     handleManualChange
@@ -1190,7 +1388,8 @@ function Meals() {
                   min="0"
                   step="0.1"
                   value={
-                    manualMeal.calories
+                    manualMeal
+                      .calories
                   }
                   onChange={
                     handleManualChange
@@ -1211,7 +1410,8 @@ function Meals() {
                   min="0"
                   step="0.1"
                   value={
-                    manualMeal.protein
+                    manualMeal
+                      .protein
                   }
                   onChange={
                     handleManualChange
@@ -1232,7 +1432,8 @@ function Meals() {
                   min="0"
                   step="0.1"
                   value={
-                    manualMeal.carbs
+                    manualMeal
+                      .carbs
                   }
                   onChange={
                     handleManualChange
@@ -1253,7 +1454,8 @@ function Meals() {
                   min="0"
                   step="0.1"
                   value={
-                    manualMeal.fat
+                    manualMeal
+                      .fat
                   }
                   onChange={
                     handleManualChange
@@ -1295,8 +1497,7 @@ function Meals() {
                         <div>
                           <h3>
                             {
-                              item
-                                .food
+                              item.food
                                 .name
                             }
                           </h3>
@@ -1305,13 +1506,11 @@ function Meals() {
                             1 serving
                             ={' '}
                             {
-                              item
-                                .food
+                              item.food
                                 .serving_size
                             }{' '}
                             {
-                              item
-                                .food
+                              item.food
                                 .serving_unit
                             }
                           </p>
@@ -1332,8 +1531,7 @@ function Meals() {
                                 event
                               ) =>
                                 updateQuantity(
-                                  item
-                                    .food
+                                  item.food
                                     .food_id,
                                   event
                                     .target
@@ -1348,8 +1546,7 @@ function Meals() {
                             className="remove-food-button"
                             onClick={() =>
                               removeFood(
-                                item
-                                  .food
+                                item.food
                                   .food_id
                               )
                             }
@@ -1430,7 +1627,9 @@ function Meals() {
             onClick={
               handleSaveMeal
             }
-            disabled={saving}
+            disabled={
+              saving
+            }
           >
             {saving
               ? 'Saving...'
@@ -1460,7 +1659,9 @@ function Meals() {
               SAVED MEALS
             </p>
 
-            <h2>Your Meals</h2>
+            <h2>
+              Your Meals
+            </h2>
           </div>
         </div>
 
@@ -1473,7 +1674,9 @@ function Meals() {
             <input
               id="filterDate"
               type="date"
-              value={filterDate}
+              value={
+                filterDate
+              }
               onChange={(
                 event
               ) =>
@@ -1552,8 +1755,9 @@ function Meals() {
             </h3>
 
             <p>
-              Create a meal or change
-              your current filters.
+              Create a meal or
+              change your current
+              filters.
             </p>
           </div>
         ) : (
@@ -1804,9 +2008,9 @@ function Meals() {
             </h3>
 
             <p>
-              Use the Log Meal button
-              on one of your saved
-              meals.
+              Use the Log Meal
+              button on one of your
+              saved meals.
             </p>
           </div>
         ) : (
@@ -1815,7 +2019,9 @@ function Meals() {
               (log) => (
                 <article
                   className="today-meal-card"
-                  key={log.log_id}
+                  key={
+                    log.log_id
+                  }
                 >
                   <div className="today-meal-title">
                     <div>
