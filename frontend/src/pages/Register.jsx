@@ -19,14 +19,15 @@ function Register() {
     setError('')
 
     if (password !== confirmPassword) {
-  setError('Passwords do not match')
-  return
-}
+      setError('Passwords do not match')
+      return
+    }
 
-if (password.length < 8) {
-  setError('Password must be at least 8 characters')
-  return
-}
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -108,6 +109,7 @@ if (password.length < 8) {
               type="password"
               id="registerPassword"
               placeholder="Create a password"
+              minLength={8}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
@@ -123,6 +125,7 @@ if (password.length < 8) {
               type="password"
               id="confirmPassword"
               placeholder="Confirm your password"
+              minLength={8}
               value={confirmPassword}
               onChange={(event) =>
                 setConfirmPassword(event.target.value)
