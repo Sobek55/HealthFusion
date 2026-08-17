@@ -1808,3 +1808,197 @@
     flex-direction: column;
   }
 }
+
+.progress-period-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.progress-period-button {
+  border: 1px solid #d4ddd7;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.progress-period-button.active {
+  background: #1c2b24;
+  border-color: #1c2b24;
+  color: white;
+}
+
+.nutrition-chart {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.nutrition-chart-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 70px;
+  align-items: center;
+  gap: 12px;
+}
+
+.nutrition-chart-track {
+  height: 14px;
+  background: #e7ece9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.nutrition-chart-bar {
+  height: 100%;
+  background: #1c2b24;
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+
+.weight-progress-section {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.weight-entry-form {
+  display: grid;
+  grid-template-columns:
+    1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-top: 20px;
+}
+
+.weight-summary-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.weight-summary-grid > div {
+  background: #f4f7f5;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.weight-summary-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #66776e;
+  font-size: 0.85rem;
+}
+
+.weight-summary-grid strong {
+  font-size: 1.1rem;
+}
+
+.weight-chart {
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.weight-chart-column {
+  height: 100%;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.weight-chart-column > strong {
+  font-size: 0.8rem;
+}
+
+.weight-chart-column > span {
+  font-size: 0.7rem;
+  color: #66776e;
+  text-align: center;
+}
+
+.weight-chart-track {
+  width: 34px;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  background: #eef2ef;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.weight-chart-bar {
+  width: 100%;
+  background: #1c2b24;
+  border-radius: 8px 8px 0 0;
+}
+
+.weight-history-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.weight-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #e3e9e5;
+}
+
+.weight-history-item div {
+  display: grid;
+  gap: 4px;
+}
+
+.weight-history-item span {
+  color: #66776e;
+  font-size: 0.85rem;
+}
+
+.dashboard-meal-link {
+  text-decoration: none;
+  font-weight: 600;
+  color: #1c2b24;
+}
+
+@media (max-width: 900px) {
+  .weight-progress-section {
+    grid-template-columns: 1fr;
+  }
+
+  .weight-entry-form {
+    grid-template-columns: 1fr;
+  }
+
+  .weight-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .progress-period-tabs {
+    flex-direction: column;
+  }
+
+  .nutrition-chart-row {
+    grid-template-columns: 70px 1fr;
+  }
+
+  .nutrition-chart-row strong {
+    grid-column: 2;
+  }
+}

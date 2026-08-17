@@ -1,7 +1,8 @@
 require('dotenv').config()
 
 const express = require('express')
-const cookieParser = require('cookie-parser')
+const cookieParser =
+  require('cookie-parser')
 
 const healthRoutes =
   require('./routes/healthRoutes')
@@ -27,6 +28,9 @@ const mealLogRoutes =
 const dietRoutes =
   require('./routes/dietRoutes')
 
+const weightHistoryRoutes =
+  require('./routes/weightHistoryRoutes')
+
 const {
   notFound,
   errorHandler
@@ -34,29 +38,60 @@ const {
 
 const app = express()
 
-const PORT = process.env.PORT || 5000
+const PORT =
+  process.env.PORT || 5000
 
-// Middleware
 app.use(express.json())
 app.use(cookieParser())
 
-// Routes
-app.use('/api/health', healthRoutes)
-app.use('/api/auth', authRoutes)
-app.use('/api/profile', profileRoutes)
-app.use('/api/goals', goalsRoutes)
-app.use('/api/foods', foodRoutes)
-app.use('/api/meals', mealRoutes)
-app.use('/api/meal-logs', mealLogRoutes)
-app.use('/api/diets', dietRoutes)
+app.use(
+  '/api/health',
+  healthRoutes
+)
 
-// 404 handler
+app.use(
+  '/api/auth',
+  authRoutes
+)
+
+app.use(
+  '/api/profile',
+  profileRoutes
+)
+
+app.use(
+  '/api/goals',
+  goalsRoutes
+)
+
+app.use(
+  '/api/foods',
+  foodRoutes
+)
+
+app.use(
+  '/api/meals',
+  mealRoutes
+)
+
+app.use(
+  '/api/meal-logs',
+  mealLogRoutes
+)
+
+app.use(
+  '/api/diets',
+  dietRoutes
+)
+
+app.use(
+  '/api/weights',
+  weightHistoryRoutes
+)
+
 app.use(notFound)
-
-// Global error handler
 app.use(errorHandler)
 
-// Start server
 app.listen(PORT, () => {
   console.log(
     `HealthFusion API running on port ${PORT}`

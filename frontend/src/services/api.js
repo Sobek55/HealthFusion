@@ -1,16 +1,26 @@
 const API_BASE_URL = '/api'
 
-async function apiRequest(endpoint, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
-    ...options
-  })
+async function apiRequest(
+  endpoint,
+  options = {}
+) {
+  const response = await fetch(
+    `${API_BASE_URL}${endpoint}`,
+    {
+      credentials: 'include',
 
-  const text = await response.text()
+      headers: {
+        'Content-Type':
+          'application/json',
+        ...options.headers
+      },
+
+      ...options
+    }
+  )
+
+  const text =
+    await response.text()
 
   let data = {}
 
@@ -38,18 +48,32 @@ async function apiRequest(endpoint, options = {}) {
   Authentication
 */
 
-export function registerUser(userData) {
-  return apiRequest('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(userData)
-  })
+export function registerUser(
+  userData
+) {
+  return apiRequest(
+    '/auth/register',
+    {
+      method: 'POST',
+      body:
+        JSON.stringify(userData)
+    }
+  )
 }
 
-export function loginUser(credentials) {
-  return apiRequest('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials)
-  })
+export function loginUser(
+  credentials
+) {
+  return apiRequest(
+    '/auth/login',
+    {
+      method: 'POST',
+      body:
+        JSON.stringify(
+          credentials
+        )
+    }
+  )
 }
 
 export function getCurrentUser() {
@@ -57,9 +81,12 @@ export function getCurrentUser() {
 }
 
 export function logoutUser() {
-  return apiRequest('/auth/logout', {
-    method: 'POST'
-  })
+  return apiRequest(
+    '/auth/logout',
+    {
+      method: 'POST'
+    }
+  )
 }
 
 /*
@@ -70,10 +97,15 @@ export function getProfile() {
   return apiRequest('/profile')
 }
 
-export function saveProfile(profileData) {
+export function saveProfile(
+  profileData
+) {
   return apiRequest('/profile', {
     method: 'PUT',
-    body: JSON.stringify(profileData)
+    body:
+      JSON.stringify(
+        profileData
+      )
   })
 }
 
@@ -85,10 +117,13 @@ export function getNutritionGoals() {
   return apiRequest('/goals')
 }
 
-export function saveNutritionGoals(goalData) {
+export function saveNutritionGoals(
+  goalData
+) {
   return apiRequest('/goals', {
     method: 'PUT',
-    body: JSON.stringify(goalData)
+    body:
+      JSON.stringify(goalData)
   })
 }
 
@@ -100,9 +135,13 @@ export function getFoods() {
   return apiRequest('/foods')
 }
 
-export function searchFoods(searchTerm) {
+export function searchFoods(
+  searchTerm
+) {
   return apiRequest(
-    `/foods?search=${encodeURIComponent(searchTerm)}`
+    `/foods?search=${encodeURIComponent(
+      searchTerm
+    )}`
   )
 }
 
@@ -115,27 +154,46 @@ export function getMeals() {
 }
 
 export function getMeal(mealId) {
-  return apiRequest(`/meals/${mealId}`)
+  return apiRequest(
+    `/meals/${mealId}`
+  )
 }
 
-export function createMeal(mealData) {
+export function createMeal(
+  mealData
+) {
   return apiRequest('/meals', {
     method: 'POST',
-    body: JSON.stringify(mealData)
+    body:
+      JSON.stringify(mealData)
   })
 }
 
-export function updateMeal(mealId, mealData) {
-  return apiRequest(`/meals/${mealId}`, {
-    method: 'PUT',
-    body: JSON.stringify(mealData)
-  })
+export function updateMeal(
+  mealId,
+  mealData
+) {
+  return apiRequest(
+    `/meals/${mealId}`,
+    {
+      method: 'PUT',
+      body:
+        JSON.stringify(
+          mealData
+        )
+    }
+  )
 }
 
-export function deleteMeal(mealId) {
-  return apiRequest(`/meals/${mealId}`, {
-    method: 'DELETE'
-  })
+export function deleteMeal(
+  mealId
+) {
+  return apiRequest(
+    `/meals/${mealId}`,
+    {
+      method: 'DELETE'
+    }
+  )
 }
 
 /*
@@ -143,23 +201,71 @@ export function deleteMeal(mealId) {
 */
 
 export function logMeal(mealId) {
-  return apiRequest(`/meal-logs/${mealId}`, {
-    method: 'POST'
-  })
+  return apiRequest(
+    `/meal-logs/${mealId}`,
+    {
+      method: 'POST'
+    }
+  )
 }
 
 export function getMealLogs() {
-  return apiRequest('/meal-logs')
+  return apiRequest(
+    '/meal-logs'
+  )
 }
 
 export function getTodayMealLogs() {
-  return apiRequest('/meal-logs/today')
+  return apiRequest(
+    '/meal-logs/today'
+  )
 }
 
-export function deleteMealLog(logId) {
-  return apiRequest(`/meal-logs/${logId}`, {
-    method: 'DELETE'
-  })
+export function deleteMealLog(
+  logId
+) {
+  return apiRequest(
+    `/meal-logs/${logId}`,
+    {
+      method: 'DELETE'
+    }
+  )
+}
+
+/*
+  Weight History
+*/
+
+export function getWeightHistory() {
+  return apiRequest(
+    '/weights'
+  )
+}
+
+export function saveWeightEntry(
+  weightData
+) {
+  return apiRequest(
+    '/weights',
+    {
+      method: 'POST',
+      body:
+        JSON.stringify(
+          weightData
+        )
+    }
+  )
+}
+
+export function deleteWeightEntry(
+  weightEntryId
+) {
+  return apiRequest(
+    `/weights/${weightEntryId}`,
+    {
+      method: 'DELETE'
+    }
+  )
 }
 
 /*
@@ -167,20 +273,31 @@ export function deleteMealLog(logId) {
 */
 
 export function getPresetDiets() {
-  return apiRequest('/diets/presets')
+  return apiRequest(
+    '/diets/presets'
+  )
 }
 
 export function getActiveDiet() {
-  return apiRequest('/diets/active')
+  return apiRequest(
+    '/diets/active'
+  )
 }
 
-export function applyPresetDiet(presetKey) {
-  return apiRequest('/diets', {
-    method: 'POST',
-    body: JSON.stringify({
-      presetKey
-    })
-  })
+export function applyPresetDiet(
+  presetKey
+) {
+  return apiRequest(
+    '/diets',
+    {
+      method: 'POST',
+
+      body:
+        JSON.stringify({
+          presetKey
+        })
+    }
+  )
 }
 
 export function previewPersonalizedDiet(
@@ -190,7 +307,10 @@ export function previewPersonalizedDiet(
     '/diets/personalized/preview',
     {
       method: 'POST',
-      body: JSON.stringify(planData)
+      body:
+        JSON.stringify(
+          planData
+        )
     }
   )
 }
@@ -202,7 +322,10 @@ export function savePersonalizedDiet(
     '/diets/personalized',
     {
       method: 'POST',
-      body: JSON.stringify(planData)
+      body:
+        JSON.stringify(
+          planData
+        )
     }
   )
 }
