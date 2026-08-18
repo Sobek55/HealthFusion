@@ -39,15 +39,63 @@
   letter-spacing: -0.045em;
 }
 
+/* Professional loading state */
+.app-loader {
+  width: min(560px, 100%);
+  margin: 8vh auto 0;
+  padding: 24px 26px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(32, 151, 96, 0.13);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.app-loader strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 1.04rem;
+}
+
+.app-loader p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.app-loader-spinner {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 4px solid rgba(32, 151, 96, 0.14);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: hfSpin 700ms linear infinite;
+}
+
+@keyframes hfSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* Dashboard is the main presentation page */
 .dashboard-summary-grid {
   gap: 18px;
+}
+
+.dashboard-summary-grid-five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .dashboard-stat-card {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  min-width: 0;
 }
 
 .dashboard-stat-card::before {
@@ -69,6 +117,12 @@
 
 .dashboard-stat-card strong {
   font-variant-numeric: tabular-nums;
+}
+
+.dashboard-stat-primary {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(234, 247, 239, 0.94));
+  border-color: rgba(32, 151, 96, 0.2);
 }
 
 .dashboard-progress {
@@ -181,18 +235,27 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-/* Auth/Profile polish */
+/* Auth / Profile polish */
 .auth-card,
 .profile-card {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
 
+.auth-header .tagline {
+  margin-bottom: 10px;
+}
+
 .auth-form input::placeholder,
 .personalized-form input::placeholder,
 .food-search-form input::placeholder,
-.form-group input::placeholder {
+.form-group input::placeholder,
+.form-group textarea::placeholder {
   color: #93a39a;
+}
+
+.profile-page .profile-card {
+  overflow: hidden;
 }
 
 /* Reduced distraction for destructive actions */
@@ -203,6 +266,12 @@ a:focus-visible {
 }
 
 /* Laptop / projector friendly */
+@media (max-width: 1280px) {
+  .dashboard-summary-grid-five {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1180px) {
   .navbar {
     padding-inline: 4%;
@@ -234,13 +303,15 @@ a:focus-visible {
     display: none;
   }
 
-  .dashboard-summary-grid {
+  .dashboard-summary-grid,
+  .dashboard-summary-grid-five {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 620px) {
-  .dashboard-summary-grid {
+  .dashboard-summary-grid,
+  .dashboard-summary-grid-five {
     grid-template-columns: 1fr;
   }
 
@@ -255,10 +326,16 @@ a:focus-visible {
     width: 100%;
     max-width: 100%;
   }
+
+  .app-loader {
+    align-items: flex-start;
+    padding: 20px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-progress > div {
+  .dashboard-progress > div,
+  .app-loader-spinner {
     animation: none;
   }
 }
