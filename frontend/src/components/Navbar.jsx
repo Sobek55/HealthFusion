@@ -39,37 +39,107 @@ function Navbar() {
     }
   }
 
+  const navClass = (path) =>
+    location.pathname === path
+      ? 'nav-link active'
+      : 'nav-link'
+
   return (
     <header className="navbar">
-      <Link to="/" className="logo">
+      <Link
+        to="/"
+        className="logo"
+        aria-label="HealthFusion home"
+      >
         Health<span>Fusion</span>
       </Link>
 
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/discover">Discover</Link>
+      <nav aria-label="Primary navigation">
+        <Link
+          to="/"
+          className={navClass('/')}
+          aria-current={
+            location.pathname === '/'
+              ? 'page'
+              : undefined
+          }
+        >
+          Home
+        </Link>
+
+        <Link
+          to="/discover"
+          className={navClass('/discover')}
+          aria-current={
+            location.pathname === '/discover'
+              ? 'page'
+              : undefined
+          }
+        >
+          Discover
+        </Link>
 
         {isLoggedIn ? (
           <>
-            <Link to="/meals">
+            <Link
+              to="/meals"
+              className={navClass('/meals')}
+              aria-current={
+                location.pathname === '/meals'
+                  ? 'page'
+                  : undefined
+              }
+            >
               Meal Tracking
             </Link>
 
-            <Link to="/dashboard">
+            <Link
+              to="/dashboard"
+              className={navClass('/dashboard')}
+              aria-current={
+                location.pathname === '/dashboard'
+                  ? 'page'
+                  : undefined
+              }
+            >
               User Progress
             </Link>
 
-            <Link to="/profile">
+            <Link
+              to="/profile"
+              className={navClass('/profile')}
+              aria-current={
+                location.pathname === '/profile'
+                  ? 'page'
+                  : undefined
+              }
+            >
               User Profile
             </Link>
           </>
         ) : (
           <>
-            <Link to="/login">
+            <Link
+              to="/login"
+              className={navClass('/login')}
+              aria-current={
+                location.pathname === '/login'
+                  ? 'page'
+                  : undefined
+              }
+            >
               Login
             </Link>
 
-            <Link to="/register">
+            <Link
+              to="/register"
+              className={navClass('/register')}
+              aria-current={
+                location.pathname === '/register'
+                  ? 'page'
+                  : undefined
+              }
+            >
               Register
             </Link>
           </>
