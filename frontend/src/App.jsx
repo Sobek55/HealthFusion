@@ -17,6 +17,7 @@ import Goals from './pages/Goals'
 import Profile from './pages/Profile'
 
 import './App.css'
+import './presentation.css'
 
 function App() {
   return (
