@@ -1,8 +1,8 @@
 require('dotenv').config()
 
 const express = require('express')
-const cookieParser =
-  require('cookie-parser')
+const cookieParser = require('cookie-parser')
+const path = require('path')
 
 const healthRoutes =
   require('./routes/healthRoutes')
@@ -41,8 +41,16 @@ const app = express()
 const PORT =
   process.env.PORT || 5000
 
+// ========================================
+// MIDDLEWARE
+// ========================================
+
 app.use(express.json())
 app.use(cookieParser())
+
+// ========================================
+// API ROUTES
+// ========================================
 
 app.use(
   '/api/health',
@@ -89,11 +97,55 @@ app.use(
   weightHistoryRoutes
 )
 
+// ========================================
+// SERVE REACT FRONTEND IN PRODUCTION
+// ========================================
+
+const frontendPath = path.join(
+  __dirname,
+  '../frontend/dist'
+)
+
+app.use(
+  express.static(frontendPath)
+)
+
+// Any non-API request should load React.
+// This allows React Router URLs such as
+// /discover, /dashboard, /meals, etc.
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/api/')
+  ) {
+    return next()
+  }
+
+  res.sendFile(
+    path.join(
+      frontendPath,
+      'index.html'
+    ),
+    (error) => {
+      if (error) {
+        next(error)
+      }
+    }
+  )
+})
+
+// ========================================
+// ERROR HANDLING
+// ========================================
+
 app.use(notFound)
 app.use(errorHandler)
 
+// ========================================
+// START SERVER
+// ========================================
+
 app.listen(PORT, () => {
   console.log(
-    `HealthFusion API running on port ${PORT}`
+    `HealthFusion running on port ${PORT}`
   )
 })
