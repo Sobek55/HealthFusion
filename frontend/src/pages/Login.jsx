@@ -9,7 +9,6 @@ function Login() {
     email: '',
     password: ''
   })
-
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,6 +19,10 @@ function Login() {
       ...current,
       [name]: value
     }))
+
+    if (error) {
+      setError('')
+    }
   }
 
   const handleSubmit = async (event) => {
@@ -46,8 +49,11 @@ function Login() {
     <main className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p>Log in to continue tracking your health and nutrition.</p>
+          <p className="tagline">WELCOME BACK</p>
+          <h1>Log in to HealthFusion</h1>
+          <p>
+            Continue tracking your nutrition, meals, and progress toward your goals.
+          </p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -60,6 +66,7 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
+              autoComplete="email"
               required
             />
           </div>
@@ -73,20 +80,16 @@ function Login() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
+              autoComplete="current-password"
               required
             />
           </div>
 
-          {error && <p className="auth-error">{error}</p>}
-
-          <div className="form-options">
-            <label className="remember-me">
-              <input type="checkbox" />
-              Remember me
-            </label>
-
-            <a href="#forgot-password">Forgot password?</a>
-          </div>
+          {error && (
+            <p className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
