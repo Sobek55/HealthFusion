@@ -98,7 +98,7 @@ function Discover() {
 
       await applyPresetDiet(plan.key)
 
-      navigate('/dashboard')
+      window.location.assign('/dashboard')
     } catch (error) {
       if (
         error.message ===
@@ -190,7 +190,7 @@ function Discover() {
           personalizedForm
         )
 
-        navigate('/dashboard')
+        window.location.assign('/dashboard')
       } catch (error) {
         setError(error.message)
       } finally {
