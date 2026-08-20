@@ -68,7 +68,9 @@ function Register() {
               <input
                 type="text"
                 id="firstName"
+                name="firstName"
                 placeholder="First name"
+                autoComplete="given-name"
                 value={firstName}
                 onChange={(event) => setFirstName(event.target.value)}
                 required
@@ -81,7 +83,9 @@ function Register() {
               <input
                 type="text"
                 id="lastName"
+                name="lastName"
                 placeholder="Last name"
+                autoComplete="family-name"
                 value={lastName}
                 onChange={(event) => setLastName(event.target.value)}
                 required
@@ -95,7 +99,9 @@ function Register() {
             <input
               type="email"
               id="registerEmail"
+              name="email"
               placeholder="Enter your email"
+              autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
@@ -108,7 +114,9 @@ function Register() {
             <input
               type="password"
               id="registerPassword"
+              name="password"
               placeholder="Create a password"
+              autoComplete="new-password"
               minLength={8}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -124,7 +132,9 @@ function Register() {
             <input
               type="password"
               id="confirmPassword"
+              name="confirmPassword"
               placeholder="Confirm your password"
+              autoComplete="new-password"
               minLength={8}
               value={confirmPassword}
               onChange={(event) =>
