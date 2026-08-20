@@ -16,6 +16,7 @@ function Profile() {
     dietaryPreferences: '',
     foodRestrictions: ''
   })
+
   const [goals, setGoals] = useState(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -70,6 +71,7 @@ function Profile() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+
     setMessage('')
     setError('')
     setSaving(true)
@@ -77,7 +79,9 @@ function Profile() {
     try {
       const data = await saveProfile(formData)
 
-      setMessage(data.message || 'Profile saved successfully')
+      setMessage(
+        data.message || 'Profile saved successfully'
+      )
 
       if (data.goals) {
         setGoals(data.goals)
@@ -92,11 +96,21 @@ function Profile() {
   if (loading) {
     return (
       <main className="page-container profile-page">
-        <div className="app-loader" role="status" aria-live="polite">
-          <span className="app-loader-spinner" aria-hidden="true" />
+        <div
+          className="app-loader"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            className="app-loader-spinner"
+            aria-hidden="true"
+          />
+
           <div>
             <strong>Loading your profile</strong>
-            <p>Preparing your health and nutrition settings...</p>
+            <p>
+              Preparing your health and nutrition settings...
+            </p>
           </div>
         </div>
       </main>
@@ -106,33 +120,60 @@ function Profile() {
   return (
     <main className="page-container profile-page">
       <div className="profile-card">
+
         <div className="profile-header">
           <p className="tagline">USER PROFILE</p>
+
           <h1>Your Profile</h1>
+
           <p>
-            Keep your information up to date so HealthFusion can personalize your nutrition targets.
+            Keep your information up to date so HealthFusion
+            can personalize your nutrition targets.
           </p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form
+          className="auth-form"
+          onSubmit={handleSubmit}
+        >
           <div className="form-group">
-            <label htmlFor="healthGoal">Health Goal</label>
+            <label htmlFor="healthGoal">
+              Health Goal
+            </label>
+
             <select
               id="healthGoal"
               name="healthGoal"
               value={formData.healthGoal}
               onChange={handleChange}
             >
-              <option value="">Select a health goal</option>
-              <option value="Weight Loss">Weight Loss</option>
-              <option value="Muscle Gain">Muscle Gain</option>
-              <option value="Weight Maintenance">Weight Maintenance</option>
-              <option value="Improved Nutrition">Improved Nutrition</option>
+              <option value="">
+                Select a health goal
+              </option>
+
+              <option value="Weight Loss">
+                Weight Loss
+              </option>
+
+              <option value="Muscle Gain">
+                Muscle Gain
+              </option>
+
+              <option value="Weight Maintenance">
+                Weight Maintenance
+              </option>
+
+              <option value="Improved Nutrition">
+                Improved Nutrition
+              </option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="age">Age</label>
+            <label htmlFor="age">
+              Age
+            </label>
+
             <input
               type="number"
               id="age"
@@ -146,7 +187,10 @@ function Profile() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="height">Height (in)</label>
+            <label htmlFor="height">
+              Height (in)
+            </label>
+
             <input
               type="number"
               step="0.01"
@@ -160,7 +204,10 @@ function Profile() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="weight">Current Weight (lb)</label>
+            <label htmlFor="weight">
+              Current Weight (lb)
+            </label>
+
             <input
               type="number"
               step="0.1"
@@ -174,7 +221,10 @@ function Profile() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="targetWeight">Target Weight (lb)</label>
+            <label htmlFor="targetWeight">
+              Target Weight (lb)
+            </label>
+
             <input
               type="number"
               step="0.1"
@@ -188,23 +238,43 @@ function Profile() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="activityLevel">Activity Level</label>
+            <label htmlFor="activityLevel">
+              Activity Level
+            </label>
+
             <select
               id="activityLevel"
               name="activityLevel"
               value={formData.activityLevel}
               onChange={handleChange}
             >
-              <option value="">Select activity level</option>
-              <option value="Sedentary">Sedentary</option>
-              <option value="Lightly Active">Lightly Active</option>
-              <option value="Moderately Active">Moderately Active</option>
-              <option value="Highly Active">Highly Active</option>
+              <option value="">
+                Select activity level
+              </option>
+
+              <option value="Sedentary">
+                Sedentary
+              </option>
+
+              <option value="Lightly Active">
+                Lightly Active
+              </option>
+
+              <option value="Moderately Active">
+                Moderately Active
+              </option>
+
+              <option value="Highly Active">
+                Highly Active
+              </option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="dietaryPreferences">Dietary Preferences</label>
+            <label htmlFor="dietaryPreferences">
+              Dietary Preferences
+            </label>
+
             <textarea
               id="dietaryPreferences"
               name="dietaryPreferences"
@@ -216,7 +286,10 @@ function Profile() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="foodRestrictions">Food Restrictions</label>
+            <label htmlFor="foodRestrictions">
+              Food Restrictions
+            </label>
+
             <textarea
               id="foodRestrictions"
               name="foodRestrictions"
@@ -227,49 +300,97 @@ function Profile() {
             />
           </div>
 
-          {message && <p className="profile-success">{message}</p>}
-          {error && <p className="auth-error">{error}</p>}
+          {message && (
+            <p
+              className="profile-success"
+              role="status"
+            >
+              {message}
+            </p>
+          )}
 
-          <button type="submit" className="auth-button" disabled={saving}>
-            {saving ? 'Saving...' : 'Save Profile'}
+          {error && (
+            <p
+              className="auth-error"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={saving}
+          >
+            {saving
+              ? 'Saving...'
+              : 'Save Profile'}
           </button>
         </form>
 
         {goals && (
           <section className="profile-targets">
-            <p className="tagline">RECOMMENDED TARGETS</p>
-            <h2>Current Nutrition Targets</h2>
+            <p className="tagline">
+              RECOMMENDED TARGETS
+            </p>
+
+            <h2>
+              Current Nutrition Targets
+            </h2>
+
             <p>
-              Saving a new health goal, activity level, or current weight automatically updates these targets.
+              Saving a new health goal, activity level,
+              or current weight automatically updates
+              these targets.
             </p>
 
             <div className="preview-summary-grid">
+
               <div className="preview-stat">
                 <span>Calories</span>
-                <strong>{Number(goals.calorie_goal).toFixed(0)}</strong>
+                <strong>
+                  {Number(
+                    goals.calorie_goal
+                  ).toFixed(0)}
+                </strong>
                 <small>kcal</small>
               </div>
 
               <div className="preview-stat">
                 <span>Protein</span>
-                <strong>{Number(goals.protein_goal).toFixed(1)}</strong>
+                <strong>
+                  {Number(
+                    goals.protein_goal
+                  ).toFixed(1)}
+                </strong>
                 <small>grams</small>
               </div>
 
               <div className="preview-stat">
                 <span>Carbs</span>
-                <strong>{Number(goals.carb_goal).toFixed(1)}</strong>
+                <strong>
+                  {Number(
+                    goals.carb_goal
+                  ).toFixed(1)}
+                </strong>
                 <small>grams</small>
               </div>
 
               <div className="preview-stat">
                 <span>Fat</span>
-                <strong>{Number(goals.fat_goal).toFixed(1)}</strong>
+                <strong>
+                  {Number(
+                    goals.fat_goal
+                  ).toFixed(1)}
+                </strong>
                 <small>grams</small>
               </div>
+
             </div>
           </section>
         )}
+
       </div>
     </main>
   )
