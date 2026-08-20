@@ -11,6 +11,12 @@ async function apiRequest(
         credentials:
           'include',
 
+        // HealthFusion API data changes frequently (diet plans,
+        // nutrition goals, meals, weights, etc.). Always ask for
+        // fresh API data so navigation after a mutation cannot
+        // reuse a stale cached GET response.
+        cache: 'no-store',
+
         headers: {
           'Content-Type':
             'application/json',
