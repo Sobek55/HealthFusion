@@ -170,19 +170,16 @@ function Goals() {
             </div>
 
           </div>
-
-          {message && (
-            <p className="profile-success">
+                {message && (
+            <p className="profile-success" role="status">
               {message}
             </p>
           )}
-
           {error && (
-            <p className="auth-error">
+            <p className="auth-error" role="alert">
               {error}
             </p>
           )}
-
           <button
             type="submit"
             className="auth-button"
