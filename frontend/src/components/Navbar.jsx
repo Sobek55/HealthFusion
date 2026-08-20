@@ -94,6 +94,18 @@ function Navbar() {
             </Link>
 
             <Link
+              to="/goals"
+              className={navClass('/goals')}
+              aria-current={
+                location.pathname === '/goals'
+                  ? 'page'
+                  : undefined
+              }
+            >
+              Nutrition Goals
+            </Link>
+
+            <Link
               to="/dashboard"
               className={navClass('/dashboard')}
               aria-current={
