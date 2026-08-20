@@ -227,10 +227,11 @@ function Discover() {
       </section>
 
       {error && (
-  <p className="auth-error" role="alert">
-    {error}
-  </p>
-)}
+        <p className="auth-error" role="alert">
+          {error}
+        </p>
+      )}
+
       {activePlan && (
         <section className="active-diet-banner">
           <div>
