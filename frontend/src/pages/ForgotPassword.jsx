@@ -65,7 +65,7 @@ function ForgotPassword() {
           )}
 
           {message && (
-            <p className="auth-success" role="status">
+            <p className="profile-success" role="status">
               {message}
             </p>
           )}
