@@ -11,10 +11,6 @@ async function apiRequest(
         credentials:
           'include',
 
-        // HealthFusion API data changes frequently (diet plans,
-        // nutrition goals, meals, weights, etc.). Always ask for
-        // fresh API data so navigation after a mutation cannot
-        // reuse a stale cached GET response.
         cache: 'no-store',
 
         headers: {
@@ -54,134 +50,95 @@ async function apiRequest(
   return data
 }
 
-/*
-  Authentication
-*/
+/* Authentication */
 
-export function registerUser(
-  userData
-) {
-  return apiRequest(
-    '/auth/register',
-    {
-      method: 'POST',
-      body:
-        JSON.stringify(
-          userData
-        )
-    }
-  )
+export function registerUser(userData) {
+  return apiRequest('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData)
+  })
 }
 
-export function loginUser(
-  credentials
-) {
-  return apiRequest(
-    '/auth/login',
-    {
-      method: 'POST',
-      body:
-        JSON.stringify(
-          credentials
-        )
-    }
-  )
+export function loginUser(credentials) {
+  return apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  })
+}
+
+export function getPasswordHint(email) {
+  return apiRequest('/auth/password-hint', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  })
+}
+
+export function requestPasswordReset(email) {
+  return apiRequest('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  })
+}
+
+export function resetPassword(token, password) {
+  return apiRequest('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      token,
+      password
+    })
+  })
 }
 
 export function getCurrentUser() {
-  return apiRequest(
-    '/auth/me'
-  )
+  return apiRequest('/auth/me')
 }
 
 export function logoutUser() {
-  return apiRequest(
-    '/auth/logout',
-    {
-      method: 'POST'
-    }
-  )
+  return apiRequest('/auth/logout', {
+    method: 'POST'
+  })
 }
 
-/*
-  User Profile
-*/
+/* User Profile */
 
 export function getProfile() {
-  return apiRequest(
-    '/profile'
-  )
+  return apiRequest('/profile')
 }
 
-export function saveProfile(
-  profileData
-) {
-  return apiRequest(
-    '/profile',
-    {
-      method: 'PUT',
-
-      body:
-        JSON.stringify(
-          profileData
-        )
-    }
-  )
+export function saveProfile(profileData) {
+  return apiRequest('/profile', {
+    method: 'PUT',
+    body: JSON.stringify(profileData)
+  })
 }
 
-/*
-  Nutrition Goals
-*/
+/* Nutrition Goals */
 
 export function getNutritionGoals() {
-  return apiRequest(
-    '/goals'
-  )
+  return apiRequest('/goals')
 }
 
-export function saveNutritionGoals(
-  goalData
-) {
-  return apiRequest(
-    '/goals',
-    {
-      method: 'PUT',
-
-      body:
-        JSON.stringify(
-          goalData
-        )
-    }
-  )
+export function saveNutritionGoals(goalData) {
+  return apiRequest('/goals', {
+    method: 'PUT',
+    body: JSON.stringify(goalData)
+  })
 }
 
-/*
-  Foods
-*/
+/* Foods */
 
-export function getFoods(
-  category = 'All'
-) {
-  const params =
-    new URLSearchParams()
+export function getFoods(category = 'All') {
+  const params = new URLSearchParams()
 
-  if (
-    category &&
-    category !== 'All'
-  ) {
-    params.set(
-      'category',
-      category
-    )
+  if (category && category !== 'All') {
+    params.set('category', category)
   }
 
-  const query =
-    params.toString()
+  const query = params.toString()
 
   return apiRequest(
-    query
-      ? `/foods?${query}`
-      : '/foods'
+    query ? `/foods?${query}` : '/foods'
   )
 }
 
@@ -189,22 +146,12 @@ export function searchFoods(
   searchTerm,
   category = 'All'
 ) {
-  const params =
-    new URLSearchParams()
+  const params = new URLSearchParams()
 
-  params.set(
-    'search',
-    searchTerm
-  )
+  params.set('search', searchTerm)
 
-  if (
-    category &&
-    category !== 'All'
-  ) {
-    params.set(
-      'category',
-      category
-    )
+  if (category && category !== 'All') {
+    params.set('category', category)
   }
 
   return apiRequest(
@@ -212,219 +159,111 @@ export function searchFoods(
   )
 }
 
-export function createFood(
-  foodData
-) {
-  return apiRequest(
-    '/foods',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify(
-          foodData
-        )
-    }
-  )
+export function createFood(foodData) {
+  return apiRequest('/foods', {
+    method: 'POST',
+    body: JSON.stringify(foodData)
+  })
 }
 
-/*
-  Meals
-*/
+/* Meals */
 
 export function getMeals() {
-  return apiRequest(
-    '/meals'
-  )
+  return apiRequest('/meals')
 }
 
-export function getMeal(
-  mealId
-) {
-  return apiRequest(
-    `/meals/${mealId}`
-  )
+export function getMeal(mealId) {
+  return apiRequest(`/meals/${mealId}`)
 }
 
-export function createMeal(
-  mealData
-) {
-  return apiRequest(
-    '/meals',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify(
-          mealData
-        )
-    }
-  )
+export function createMeal(mealData) {
+  return apiRequest('/meals', {
+    method: 'POST',
+    body: JSON.stringify(mealData)
+  })
 }
 
-export function updateMeal(
-  mealId,
-  mealData
-) {
-  return apiRequest(
-    `/meals/${mealId}`,
-    {
-      method: 'PUT',
-
-      body:
-        JSON.stringify(
-          mealData
-        )
-    }
-  )
+export function updateMeal(mealId, mealData) {
+  return apiRequest(`/meals/${mealId}`, {
+    method: 'PUT',
+    body: JSON.stringify(mealData)
+  })
 }
 
-export function deleteMeal(
-  mealId
-) {
-  return apiRequest(
-    `/meals/${mealId}`,
-    {
-      method: 'DELETE'
-    }
-  )
+export function deleteMeal(mealId) {
+  return apiRequest(`/meals/${mealId}`, {
+    method: 'DELETE'
+  })
 }
 
-/*
-  Meal Logs
-*/
+/* Meal Logs */
 
-export function logMeal(
-  mealId
-) {
-  return apiRequest(
-    `/meal-logs/${mealId}`,
-    {
-      method: 'POST'
-    }
-  )
+export function logMeal(mealId) {
+  return apiRequest(`/meal-logs/${mealId}`, {
+    method: 'POST'
+  })
 }
 
 export function getMealLogs() {
-  return apiRequest(
-    '/meal-logs'
-  )
+  return apiRequest('/meal-logs')
 }
 
 export function getTodayMealLogs() {
-  return apiRequest(
-    '/meal-logs/today'
-  )
+  return apiRequest('/meal-logs/today')
 }
 
-export function deleteMealLog(
-  logId
-) {
-  return apiRequest(
-    `/meal-logs/${logId}`,
-    {
-      method: 'DELETE'
-    }
-  )
+export function deleteMealLog(logId) {
+  return apiRequest(`/meal-logs/${logId}`, {
+    method: 'DELETE'
+  })
 }
 
-/*
-  Weight History
-*/
+/* Weight History */
 
 export function getWeightHistory() {
-  return apiRequest(
-    '/weights'
-  )
+  return apiRequest('/weights')
 }
 
-export function saveWeightEntry(
-  weightData
-) {
-  return apiRequest(
-    '/weights',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify(
-          weightData
-        )
-    }
-  )
+export function saveWeightEntry(weightData) {
+  return apiRequest('/weights', {
+    method: 'POST',
+    body: JSON.stringify(weightData)
+  })
 }
 
-export function deleteWeightEntry(
-  weightEntryId
-) {
-  return apiRequest(
-    `/weights/${weightEntryId}`,
-    {
-      method: 'DELETE'
-    }
-  )
+export function deleteWeightEntry(weightEntryId) {
+  return apiRequest(`/weights/${weightEntryId}`, {
+    method: 'DELETE'
+  })
 }
 
-/*
-  Diet Plans
-*/
+/* Diet Plans */
 
 export function getPresetDiets() {
-  return apiRequest(
-    '/diets/presets'
-  )
+  return apiRequest('/diets/presets')
 }
 
 export function getActiveDiet() {
-  return apiRequest(
-    '/diets/active'
-  )
+  return apiRequest('/diets/active')
 }
 
-export function applyPresetDiet(
-  presetKey
-) {
-  return apiRequest(
-    '/diets',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify({
-          presetKey
-        })
-    }
-  )
+export function applyPresetDiet(presetKey) {
+  return apiRequest('/diets', {
+    method: 'POST',
+    body: JSON.stringify({ presetKey })
+  })
 }
 
-export function previewPersonalizedDiet(
-  planData
-) {
-  return apiRequest(
-    '/diets/personalized/preview',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify(
-          planData
-        )
-    }
-  )
+export function previewPersonalizedDiet(planData) {
+  return apiRequest('/diets/personalized/preview', {
+    method: 'POST',
+    body: JSON.stringify(planData)
+  })
 }
 
-export function savePersonalizedDiet(
-  planData
-) {
-  return apiRequest(
-    '/diets/personalized',
-    {
-      method: 'POST',
-
-      body:
-        JSON.stringify(
-          planData
-        )
-    }
-  )
+export function savePersonalizedDiet(planData) {
+  return apiRequest('/diets/personalized', {
+    method: 'POST',
+    body: JSON.stringify(planData)
+  })
 }
