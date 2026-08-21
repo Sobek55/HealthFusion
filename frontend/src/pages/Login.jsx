@@ -25,13 +25,8 @@ function Login() {
       [name]: value
     }))
 
-    if (error) {
-      setError('')
-    }
-
-    if (hintMessage) {
-      setHintMessage('')
-    }
+    if (error) setError('')
+    if (hintMessage) setHintMessage('')
   }
 
   const handleSubmit = async (event) => {
@@ -126,7 +121,7 @@ function Login() {
           )}
 
           {hintMessage && (
-            <p className="auth-success" role="status">
+            <p className="profile-success" role="status">
               {hintMessage}
             </p>
           )}
@@ -143,13 +138,13 @@ function Login() {
         <p className="auth-switch">
           <button
             type="button"
-            className="link-button"
+            className="secondary-button"
             onClick={handlePasswordHint}
             disabled={hintLoading}
           >
             {hintLoading ? 'Loading Hint...' : 'View Password Hint'}
           </button>
-          {' | '}
+          {' '}
           <Link to="/forgot-password">Forgot Password?</Link>
         </p>
 
