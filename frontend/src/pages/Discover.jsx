@@ -98,7 +98,7 @@ function Discover() {
 
       await applyPresetDiet(plan.key)
 
-      window.location.assign('/dashboard')
+      navigate('/dashboard')
     } catch (error) {
       if (
         error.message ===
@@ -125,8 +125,6 @@ function Discover() {
       [name]: value
     }))
 
-    // If the user edits their answers after
-    // previewing, require a new calculation.
     setPreview(null)
     setError('')
   }
@@ -190,7 +188,7 @@ function Discover() {
           personalizedForm
         )
 
-        window.location.assign('/dashboard')
+        navigate('/dashboard')
       } catch (error) {
         setError(error.message)
       } finally {
@@ -227,7 +225,10 @@ function Discover() {
       </section>
 
       {error && (
-        <p className="auth-error" role="alert">
+        <p
+          className="auth-error"
+          role="alert"
+        >
           {error}
         </p>
       )}
@@ -235,7 +236,9 @@ function Discover() {
       {activePlan && (
         <section className="active-diet-banner">
           <div>
-            <span>ACTIVE PLAN</span>
+            <span>
+              ACTIVE PLAN
+            </span>
 
             <h2>
               {activePlan.plan_name}
@@ -274,7 +277,9 @@ function Discover() {
               key={plan.key}
             >
               <div>
-                <h3>{plan.name}</h3>
+                <h3>
+                  {plan.name}
+                </h3>
 
                 <p>
                   {plan.description}
@@ -285,7 +290,9 @@ function Discover() {
                 type="button"
                 className="primary-button"
                 onClick={() =>
-                  setSelectedPlan(plan)
+                  setSelectedPlan(
+                    plan
+                  )
                 }
               >
                 View Plan
@@ -308,7 +315,9 @@ function Discover() {
               </h2>
 
               <p>
-                {selectedPlan.description}
+                {
+                  selectedPlan.description
+                }
               </p>
             </div>
 
@@ -316,7 +325,9 @@ function Discover() {
               type="button"
               className="secondary-button"
               onClick={() =>
-                setSelectedPlan(null)
+                setSelectedPlan(
+                  null
+                )
               }
             >
               Close
@@ -325,7 +336,9 @@ function Discover() {
 
           <div className="diet-detail-grid">
             <div>
-              <h3>Focus</h3>
+              <h3>
+                Focus
+              </h3>
 
               <p>
                 {selectedPlan.focus}
@@ -333,10 +346,14 @@ function Discover() {
             </div>
 
             <div>
-              <h3>Best For</h3>
+              <h3>
+                Best For
+              </h3>
 
               <p>
-                {selectedPlan.suitableFor}
+                {
+                  selectedPlan.suitableFor
+                }
               </p>
             </div>
           </div>
@@ -347,13 +364,21 @@ function Discover() {
             </h3>
 
             <ul>
-              {selectedPlan.guidelines.map(
-                guideline => (
-                  <li key={guideline}>
-                    {guideline}
-                  </li>
+              {
+                selectedPlan.guidelines.map(
+                  guideline => (
+                    <li
+                      key={
+                        guideline
+                      }
+                    >
+                      {
+                        guideline
+                      }
+                    </li>
+                  )
                 )
-              )}
+              }
             </ul>
           </div>
 
@@ -362,7 +387,9 @@ function Discover() {
             className="primary-button"
             disabled={applying}
             onClick={() =>
-              handleApplyPlan(selectedPlan)
+              handleApplyPlan(
+                selectedPlan
+              )
             }
           >
             {applying
@@ -394,7 +421,9 @@ function Discover() {
         <button
           type="button"
           className="primary-button"
-          onClick={handleOpenPersonalized}
+          onClick={
+            handleOpenPersonalized
+          }
         >
           Create Personalized Plan
         </button>
@@ -434,7 +463,8 @@ function Discover() {
               <select
                 name="primaryGoal"
                 value={
-                  personalizedForm.primaryGoal
+                  personalizedForm
+                    .primaryGoal
                 }
                 onChange={
                   handlePersonalizedChange
@@ -469,7 +499,8 @@ function Discover() {
               <select
                 name="activityLevel"
                 value={
-                  personalizedForm.activityLevel
+                  personalizedForm
+                    .activityLevel
                 }
                 onChange={
                   handlePersonalizedChange
@@ -507,7 +538,8 @@ function Discover() {
                 min="1"
                 step="0.1"
                 value={
-                  personalizedForm.currentWeight
+                  personalizedForm
+                    .currentWeight
                 }
                 onChange={
                   handlePersonalizedChange
@@ -525,7 +557,8 @@ function Discover() {
                 min="1"
                 step="0.1"
                 value={
-                  personalizedForm.targetWeight
+                  personalizedForm
+                    .targetWeight
                 }
                 onChange={
                   handlePersonalizedChange
@@ -543,7 +576,8 @@ function Discover() {
               rows="3"
               placeholder="Example: High protein, Mediterranean-style foods"
               value={
-                personalizedForm.dietaryPreferences
+                personalizedForm
+                  .dietaryPreferences
               }
               onChange={
                 handlePersonalizedChange
@@ -560,7 +594,8 @@ function Discover() {
               rows="3"
               placeholder="Example: No shellfish, lactose intolerant, or None"
               value={
-                personalizedForm.foodRestrictions
+                personalizedForm
+                  .foodRestrictions
               }
               onChange={
                 handlePersonalizedChange
@@ -610,40 +645,62 @@ function Discover() {
               </span>
 
               <strong>
-                {preview.calorieTarget}
+                {
+                  preview.calorieTarget
+                }
               </strong>
 
-              <small>kcal</small>
+              <small>
+                kcal
+              </small>
             </div>
 
             <div className="preview-stat">
-              <span>Protein</span>
+              <span>
+                Protein
+              </span>
 
               <strong>
-                {preview.proteinTarget}
+                {
+                  preview.proteinTarget
+                }
               </strong>
 
-              <small>grams</small>
+              <small>
+                grams
+              </small>
             </div>
 
             <div className="preview-stat">
-              <span>Carbohydrates</span>
+              <span>
+                Carbohydrates
+              </span>
 
               <strong>
-                {preview.carbTarget}
+                {
+                  preview.carbTarget
+                }
               </strong>
 
-              <small>grams</small>
+              <small>
+                grams
+              </small>
             </div>
 
             <div className="preview-stat">
-              <span>Fat</span>
+              <span>
+                Fat
+              </span>
 
               <strong>
-                {preview.fatTarget}
+                {
+                  preview.fatTarget
+                }
               </strong>
 
-              <small>grams</small>
+              <small>
+                grams
+              </small>
             </div>
           </div>
 
@@ -652,35 +709,46 @@ function Discover() {
               <strong>
                 Primary Goal:
               </strong>{' '}
-              {preview.primaryGoal}
+              {
+                preview.primaryGoal
+              }
             </p>
 
             <p>
               <strong>
                 Current Weight:
               </strong>{' '}
-              {preview.currentWeight} lb
+              {
+                preview.currentWeight
+              } lb
             </p>
 
             <p>
               <strong>
                 Target Weight:
               </strong>{' '}
-              {preview.targetWeight} lb
+              {
+                preview.targetWeight
+              } lb
             </p>
 
             <p>
               <strong>
                 Activity Level:
               </strong>{' '}
-              {preview.activityLevel}
+              {
+                preview.activityLevel
+              }
             </p>
 
             <p>
               <strong>
                 Estimated Maintenance:
               </strong>{' '}
-              {preview.maintenanceCalories}{' '}
+              {
+                preview
+                  .maintenanceCalories
+              }{' '}
               kcal
             </p>
 
@@ -688,14 +756,20 @@ function Discover() {
               <strong>
                 Dietary Preferences:
               </strong>{' '}
-              {preview.dietaryPreferences}
+              {
+                preview
+                  .dietaryPreferences
+              }
             </p>
 
             <p>
               <strong>
                 Food Restrictions:
               </strong>{' '}
-              {preview.foodRestrictions}
+              {
+                preview
+                  .foodRestrictions
+              }
             </p>
           </div>
 
@@ -711,7 +785,8 @@ function Discover() {
                     'personalized-plan'
                   )
                   ?.scrollIntoView({
-                    behavior: 'smooth'
+                    behavior:
+                      'smooth'
                   })
               }}
             >
