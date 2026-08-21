@@ -35,6 +35,17 @@ const User = {
     )
 
     return result.insertId
+  },
+
+  async updatePassword(userId, passwordHash) {
+    await pool.execute(
+      `UPDATE Users
+       SET password_hash = ?
+       WHERE user_id = ?`,
+      [passwordHash, userId]
+    )
+
+    return true
   }
 }
 
