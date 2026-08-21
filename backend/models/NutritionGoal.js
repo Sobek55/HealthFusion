@@ -1,19 +1,23 @@
-const pool = require('../config/db')
+const pool =
+  require('../config/db')
 
 const NutritionGoal = {
-  async findByUserId(userId) {
-    const [rows] = await pool.execute(
-      `SELECT
-        goal_id,
-        user_id,
-        calorie_goal,
-        protein_goal,
-        carb_goal,
-        fat_goal
-       FROM Nutrition_Goals
-       WHERE user_id = ?`,
-      [userId]
-    )
+  async findByUserId(
+    userId
+  ) {
+    const [rows] =
+      await pool.execute(
+        `SELECT
+          goal_id,
+          user_id,
+          calorie_goal,
+          protein_goal,
+          carb_goal,
+          fat_goal
+         FROM Nutrition_Goals
+         WHERE user_id = ?`,
+        [userId]
+      )
 
     return rows[0]
   },
@@ -34,12 +38,16 @@ const NutritionGoal = {
           carb_goal,
           fat_goal
         )
-       VALUES (?, ?, ?, ?, ?) AS new
+       VALUES (?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
-        calorie_goal = new.calorie_goal,
-        protein_goal = new.protein_goal,
-        carb_goal = new.carb_goal,
-        fat_goal = new.fat_goal`,
+          calorie_goal =
+            VALUES(calorie_goal),
+          protein_goal =
+            VALUES(protein_goal),
+          carb_goal =
+            VALUES(carb_goal),
+          fat_goal =
+            VALUES(fat_goal)`,
       [
         userId,
         calorieGoal,
@@ -49,8 +57,11 @@ const NutritionGoal = {
       ]
     )
 
-    return this.findByUserId(userId)
+    return this.findByUserId(
+      userId
+    )
   }
 }
 
-module.exports = NutritionGoal
+module.exports =
+  NutritionGoal
