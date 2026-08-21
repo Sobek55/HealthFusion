@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const User = require('../models/User')
 
 const createToken = (userId) => {
@@ -14,13 +15,20 @@ const createToken = (userId) => {
   )
 }
 
+const hashResetToken = (token) =>
+  crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+
 const register = async (req, res) => {
   try {
     const {
       firstName,
       lastName,
       email,
-      password
+      password,
+      passwordHint
     } = req.body
 
     if (
@@ -69,11 +77,15 @@ const register = async (req, res) => {
     const passwordHash =
       await bcrypt.hash(password, 12)
 
+    const cleanedHint =
+      passwordHint?.trim() || null
+
     const userId = await User.create(
       firstName.trim(),
       lastName.trim(),
       normalizedEmail,
-      passwordHash
+      passwordHash,
+      cleanedHint
     )
 
     const user = await User.findById(userId)
@@ -168,6 +180,163 @@ const login = async (req, res) => {
   }
 }
 
+const getPasswordHint = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      })
+    }
+
+    const user = await User.findByEmail(
+      email.trim().toLowerCase()
+    )
+
+    return res.status(200).json({
+      success: true,
+      hint: user?.password_hint || null,
+      message: user?.password_hint
+        ? 'Password hint found'
+        : 'No password hint is available for this account'
+    })
+  } catch (error) {
+    console.error('Password hint error:', error)
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve password hint'
+    })
+  }
+}
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      })
+    }
+
+    const normalizedEmail =
+      email.trim().toLowerCase()
+
+    const user =
+      await User.findByEmail(normalizedEmail)
+
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message:
+          'If an account exists for that email, password reset instructions are available.'
+      })
+    }
+
+    const resetToken =
+      crypto.randomBytes(32).toString('hex')
+
+    const tokenHash =
+      hashResetToken(resetToken)
+
+    const expiresAt = new Date(
+      Date.now() + 15 * 60 * 1000
+    )
+
+    await User.saveResetToken(
+      user.user_id,
+      tokenHash,
+      expiresAt
+    )
+
+    const response = {
+      success: true,
+      message:
+        'Password reset request created. The reset link expires in 15 minutes.'
+    }
+
+    // Local capstone/demo mode: expose the temporary token so
+    // the reset flow can be tested without an email provider.
+    // Production should email the token instead.
+    if (process.env.NODE_ENV !== 'production') {
+      response.resetToken = resetToken
+    }
+
+    return res.status(200).json(response)
+  } catch (error) {
+    console.error('Forgot password error:', error)
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to create password reset request'
+    })
+  }
+}
+
+const resetPassword = async (req, res) => {
+  try {
+    const {
+      token,
+      password
+    } = req.body
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token and new password are required'
+      })
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      })
+    }
+
+    const tokenHash =
+      hashResetToken(token)
+
+    const resetRecord =
+      await User.findResetToken(tokenHash)
+
+    if (!resetRecord) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset link is invalid or has expired'
+      })
+    }
+
+    const passwordHash =
+      await bcrypt.hash(password, 12)
+
+    await User.updatePassword(
+      resetRecord.user_id,
+      passwordHash
+    )
+
+    await User.deleteResetTokens(
+      resetRecord.user_id
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully'
+    })
+  } catch (error) {
+    console.error('Reset password error:', error)
+
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to reset password'
+    })
+  }
+}
+
 const getCurrentUser = async (req, res) => {
   try {
     const user =
@@ -224,6 +393,9 @@ const logout = (req, res) => {
 module.exports = {
   register,
   login,
+  getPasswordHint,
+  forgotPassword,
+  resetPassword,
   getCurrentUser,
   logout
 }
