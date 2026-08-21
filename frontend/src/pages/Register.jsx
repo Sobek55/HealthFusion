@@ -10,6 +10,7 @@ function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordHint, setPasswordHint] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -35,7 +36,8 @@ function Register() {
         firstName,
         lastName,
         email,
-        password
+        password,
+        passwordHint
       })
 
       navigate('/login')
@@ -64,7 +66,6 @@ function Register() {
           <div className="name-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
-
               <input
                 type="text"
                 id="firstName"
@@ -79,7 +80,6 @@ function Register() {
 
             <div className="form-group">
               <label htmlFor="lastName">Last Name</label>
-
               <input
                 type="text"
                 id="lastName"
@@ -95,7 +95,6 @@ function Register() {
 
           <div className="form-group">
             <label htmlFor="registerEmail">Email</label>
-
             <input
               type="email"
               id="registerEmail"
@@ -110,7 +109,6 @@ function Register() {
 
           <div className="form-group">
             <label htmlFor="registerPassword">Password</label>
-
             <input
               type="password"
               id="registerPassword"
@@ -125,10 +123,7 @@ function Register() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">
-              Confirm Password
-            </label>
-
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
               type="password"
               id="confirmPassword"
@@ -142,6 +137,26 @@ function Register() {
               }
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="passwordHint">
+              Password Hint (Optional)
+            </label>
+            <input
+              type="text"
+              id="passwordHint"
+              name="passwordHint"
+              placeholder="Example: My favorite vacation year"
+              maxLength={255}
+              value={passwordHint}
+              onChange={(event) =>
+                setPasswordHint(event.target.value)
+              }
+            />
+            <small>
+              Do not enter your actual password or a hint that reveals it directly.
+            </small>
           </div>
 
           <button
