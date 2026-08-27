@@ -12,25 +12,106 @@ const goalAdjustments = {
   'Improved Nutrition': 0
 }
 
+/*
+  Default macro split used by
+  personalized plans and users
+  without an active preset plan.
+*/
+const defaultMacroSplit = {
+  protein: 0.30,
+  carbs: 0.40,
+  fat: 0.30
+}
+
+/*
+  Macro splits used by each
+  Discovery preset plan.
+*/
+const presetMacroSplits = {
+  balanced: {
+    protein: 0.30,
+    carbs: 0.40,
+    fat: 0.30
+  },
+
+  'high-protein': {
+    protein: 0.40,
+    carbs: 0.35,
+    fat: 0.25
+  },
+
+  mediterranean: {
+    protein: 0.25,
+    carbs: 0.45,
+    fat: 0.30
+  },
+
+  'lower-carb': {
+    protein: 0.35,
+    carbs: 0.25,
+    fat: 0.40
+  }
+}
+
 const roundOneDecimal = value => {
   return Math.round(value * 10) / 10
+}
+
+const calculateMacros = (
+  calorieTarget,
+  macroSplit = defaultMacroSplit
+) => {
+  const proteinTarget =
+    roundOneDecimal(
+      (calorieTarget *
+        macroSplit.protein) /
+        4
+    )
+
+  const carbTarget =
+    roundOneDecimal(
+      (calorieTarget *
+        macroSplit.carbs) /
+        4
+    )
+
+  const fatTarget =
+    roundOneDecimal(
+      (calorieTarget *
+        macroSplit.fat) /
+        9
+    )
+
+  return {
+    proteinTarget,
+    carbTarget,
+    fatTarget
+  }
 }
 
 const calculateNutritionTargets = (
   currentWeight,
   activityLevel,
-  healthGoal
+  healthGoal,
+  macroSplit = defaultMacroSplit
 ) => {
-  const numericWeight = Number(currentWeight)
+  const numericWeight =
+    Number(currentWeight)
 
   const activityMultiplier =
-    activityMultipliers[activityLevel]
+    activityMultipliers[
+      activityLevel
+    ]
 
   const goalAdjustment =
-    goalAdjustments[healthGoal]
+    goalAdjustments[
+      healthGoal
+    ]
 
   if (
-    !Number.isFinite(numericWeight) ||
+    !Number.isFinite(
+      numericWeight
+    ) ||
     numericWeight <= 0
   ) {
     throw new Error(
@@ -38,54 +119,67 @@ const calculateNutritionTargets = (
     )
   }
 
-  if (activityMultiplier === undefined) {
+  if (
+    activityMultiplier ===
+    undefined
+  ) {
     throw new Error(
       'A valid activity level is required to calculate nutrition targets'
     )
   }
 
-  if (goalAdjustment === undefined) {
+  if (
+    goalAdjustment ===
+    undefined
+  ) {
     throw new Error(
       'A valid health goal is required to calculate nutrition targets'
     )
   }
 
   const maintenanceCalories =
-    numericWeight * activityMultiplier
+    numericWeight *
+    activityMultiplier
 
   const calorieTarget =
     Math.round(
-      maintenanceCalories + goalAdjustment
+      maintenanceCalories +
+        goalAdjustment
     )
 
-  const proteinTarget =
-    roundOneDecimal(
-      (calorieTarget * 0.30) / 4
-    )
-
-  const carbTarget =
-    roundOneDecimal(
-      (calorieTarget * 0.40) / 4
-    )
-
-  const fatTarget =
-    roundOneDecimal(
-      (calorieTarget * 0.30) / 9
+  const macroTargets =
+    calculateMacros(
+      calorieTarget,
+      macroSplit
     )
 
   return {
     maintenanceCalories:
-      Math.round(maintenanceCalories),
+      Math.round(
+        maintenanceCalories
+      ),
 
     calorieTarget,
-    proteinTarget,
-    carbTarget,
-    fatTarget
+
+    proteinTarget:
+      macroTargets
+        .proteinTarget,
+
+    carbTarget:
+      macroTargets
+        .carbTarget,
+
+    fatTarget:
+      macroTargets
+        .fatTarget
   }
 }
 
 module.exports = {
   activityMultipliers,
   goalAdjustments,
+  defaultMacroSplit,
+  presetMacroSplits,
+  calculateMacros,
   calculateNutritionTargets
 }
