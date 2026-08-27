@@ -732,6 +732,11 @@ const savePersonalizedDiet =
           req.body
         )
 
+      /*
+        Save the personalized diet
+        to the Diet_Plans table.
+      */
+
       const plan =
         await DietPlan
           .savePersonalized(
@@ -740,9 +745,12 @@ const savePersonalizedDiet =
           )
 
       /*
-        Personalized plans already
-        feed their targets directly
-        into User Progress.
+        Save the calorie and macro
+        targets to Nutrition_Goals.
+
+        This is what connects the
+        personalized diet to User
+        Progress and the Dashboard.
       */
 
       const goals =
@@ -758,14 +766,43 @@ const savePersonalizedDiet =
             .fatTarget
         )
 
+      /*
+        Keep User_Profiles synchronized
+        with the information entered
+        on the Discovery page.
+
+        Age and height are intentionally
+        NOT changed here because
+        Discovery does not collect them.
+      */
+
+      const profile =
+        await Profile
+          .updateFromDiscovery(
+            req.user.userId,
+            calculatedPlan
+              .currentWeight,
+            calculatedPlan
+              .targetWeight,
+            calculatedPlan
+              .primaryGoal,
+            calculatedPlan
+              .activityLevel,
+            calculatedPlan
+              .dietaryPreferences,
+            calculatedPlan
+              .foodRestrictions
+          )
+
       return res.status(200).json({
         success: true,
 
         message:
-          'Personalized diet plan saved and nutrition targets updated successfully',
+          'Personalized diet plan, profile, and nutrition targets updated successfully',
 
         plan,
-        goals
+        goals,
+        profile
       })
     } catch (error) {
       console.error(
