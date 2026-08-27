@@ -2,33 +2,34 @@ const pool = require('../config/db')
 
 const DietPlan = {
   async findByUserId(userId) {
-    const [rows] = await pool.execute(
-      `SELECT
-        diet_plan_id,
-        user_id,
-        plan_type,
-        preset_key,
-        plan_name,
-        description,
-        primary_goal,
-        current_weight,
-        target_weight,
-        activity_level,
-        dietary_preferences,
-        food_restrictions,
-        calorie_target,
-        protein_target,
-        carb_target,
-        fat_target,
-        confirmed,
-        created_at,
-        updated_at
-       FROM Diet_Plans
-       WHERE user_id = ?
-       ORDER BY diet_plan_id DESC
-       LIMIT 1`,
-      [userId]
-    )
+    const [rows] =
+      await pool.execute(
+        `SELECT
+          diet_plan_id,
+          user_id,
+          plan_type,
+          preset_key,
+          plan_name,
+          description,
+          primary_goal,
+          current_weight,
+          target_weight,
+          activity_level,
+          dietary_preferences,
+          food_restrictions,
+          calorie_target,
+          protein_target,
+          carb_target,
+          fat_target,
+          confirmed,
+          created_at,
+          updated_at
+         FROM Diet_Plans
+         WHERE user_id = ?
+         ORDER BY diet_plan_id DESC
+         LIMIT 1`,
+        [userId]
+      )
 
     return rows[0]
   },
@@ -42,13 +43,16 @@ const DietPlan = {
       await pool.getConnection()
 
     try {
-      await connection.beginTransaction()
+      await connection
+        .beginTransaction()
 
-      // The active diet is one plan per user.
-      // Older databases may contain duplicate rows,
-      // so remove them before saving the new active plan.
+      /*
+        Keep exactly one active
+        diet plan per user.
+      */
       await connection.execute(
-        'DELETE FROM Diet_Plans WHERE user_id = ?',
+        `DELETE FROM Diet_Plans
+         WHERE user_id = ?`,
         [userId]
       )
 
@@ -131,13 +135,16 @@ const DietPlan = {
       await pool.getConnection()
 
     try {
-      await connection.beginTransaction()
+      await connection
+        .beginTransaction()
 
-      // Keep exactly one active diet plan per user,
-      // even if an older local database was created
-      // without a UNIQUE constraint on user_id.
+      /*
+        Keep exactly one active
+        diet plan per user.
+      */
       await connection.execute(
-        'DELETE FROM Diet_Plans WHERE user_id = ?',
+        `DELETE FROM Diet_Plans
+         WHERE user_id = ?`,
         [userId]
       )
 
@@ -207,6 +214,52 @@ const DietPlan = {
     } finally {
       connection.release()
     }
+  },
+
+  /*
+    When Profile information changes,
+    keep the active Diet_Plans row
+    synchronized as well.
+  */
+  async updateFromProfile(
+    userId,
+    profile,
+    targets
+  ) {
+    await pool.execute(
+      `UPDATE Diet_Plans
+       SET
+          primary_goal = ?,
+          current_weight = ?,
+          target_weight = ?,
+          activity_level = ?,
+          dietary_preferences = ?,
+          food_restrictions = ?,
+          calorie_target = ?,
+          protein_target = ?,
+          carb_target = ?,
+          fat_target = ?
+       WHERE user_id = ?`,
+      [
+        profile.health_goal,
+        profile.weight,
+        profile.target_weight,
+        profile.activity_level,
+        profile.dietary_preferences,
+        profile.food_restrictions,
+
+        targets.calorieTarget,
+        targets.proteinTarget,
+        targets.carbTarget,
+        targets.fatTarget,
+
+        userId
+      ]
+    )
+
+    return this.findByUserId(
+      userId
+    )
   }
 }
 
