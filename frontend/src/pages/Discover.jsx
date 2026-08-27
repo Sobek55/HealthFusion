@@ -10,6 +10,7 @@ import {
 import {
   getPresetDiets,
   getActiveDiet,
+  getProfile,
   applyPresetDiet,
   previewPersonalizedDiet,
   savePersonalizedDiet
@@ -77,6 +78,46 @@ function Discover() {
           setActivePlan(
             activeData.plan || null
           )
+
+          /*
+            Load the user's Profile
+            information and prefill
+            the personalized plan form.
+          */
+          try {
+            const profileData =
+              await getProfile()
+
+            if (profileData.profile) {
+              const profile =
+                profileData.profile
+
+              setPersonalizedForm({
+                primaryGoal:
+                  profile.health_goal ?? '',
+
+                currentWeight:
+                  profile.weight ?? '',
+
+                targetWeight:
+                  profile.target_weight ?? '',
+
+                activityLevel:
+                  profile.activity_level ?? '',
+
+                dietaryPreferences:
+                  profile.dietary_preferences ?? '',
+
+                foodRestrictions:
+                  profile.food_restrictions ?? ''
+              })
+            }
+          } catch (profileError) {
+            console.error(
+              'Unable to load profile into Discover:',
+              profileError
+            )
+          }
         } catch {
           setIsLoggedIn(false)
           setActivePlan(null)
