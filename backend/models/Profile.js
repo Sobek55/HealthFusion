@@ -75,6 +75,50 @@ const Profile = {
     )
 
     return this.findByUserId(userId)
+  },
+
+  async updateFromDiscovery(
+    userId,
+    weight,
+    targetWeight,
+    healthGoal,
+    activityLevel,
+    dietaryPreferences,
+    foodRestrictions
+  ) {
+    await pool.execute(
+      `INSERT INTO User_Profiles
+        (
+          user_id,
+          weight,
+          target_weight,
+          health_goal,
+          activity_level,
+          dietary_preferences,
+          food_restrictions
+        )
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+          weight = VALUES(weight),
+          target_weight = VALUES(target_weight),
+          health_goal = VALUES(health_goal),
+          activity_level = VALUES(activity_level),
+          dietary_preferences =
+            VALUES(dietary_preferences),
+          food_restrictions =
+            VALUES(food_restrictions)`,
+      [
+        userId,
+        weight,
+        targetWeight,
+        healthGoal,
+        activityLevel,
+        dietaryPreferences,
+        foodRestrictions
+      ]
+    )
+
+    return this.findByUserId(userId)
   }
 }
 
