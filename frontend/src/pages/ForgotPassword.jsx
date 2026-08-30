@@ -14,10 +14,18 @@ function ForgotPassword() {
     setError('')
     setMessage('')
 
+    // Sanitize and validate email
+    const trimmedEmail = email.trim()
+
+    if (!trimmedEmail) {
+      setError('Email cannot be empty')
+      return
+    }
+
     try {
       setLoading(true)
 
-      const data = await requestPasswordReset(email)
+      const data = await requestPasswordReset(trimmedEmail)
       setMessage(data.message)
 
       if (data.resetToken) {
