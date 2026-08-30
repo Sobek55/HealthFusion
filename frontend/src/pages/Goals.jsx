@@ -104,7 +104,7 @@ function Goals() {
   if (loading) {
     return (
       <main className="page-container">
-        <p>Loading nutrition goals...</p>
+        <p role="status" aria-live="polite">Loading nutrition goals...</p>
       </main>
     )
   }
