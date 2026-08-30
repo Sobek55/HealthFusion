@@ -37,7 +37,7 @@ function Login() {
       setLoading(true)
 
       await loginUser({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password
       })
 
@@ -60,7 +60,7 @@ function Login() {
 
     try {
       setHintLoading(true)
-      const data = await getPasswordHint(formData.email)
+      const data = await getPasswordHint(formData.email.trim())
 
       setHintMessage(
         data.hint
