@@ -48,6 +48,9 @@ function Goals() {
       ...current,
       [name]: value
     }))
+
+    setMessage('')
+    setError('')
   }
 
   const handleSubmit = async (event) => {
@@ -55,6 +58,33 @@ function Goals() {
 
     setMessage('')
     setError('')
+
+    // Validation checks
+    const calories = parseFloat(formData.calorieGoal)
+    const protein = parseFloat(formData.proteinGoal)
+    const carbs = parseFloat(formData.carbGoal)
+    const fat = parseFloat(formData.fatGoal)
+
+    if (isNaN(calories) || calories <= 0) {
+      setError('Calories must be greater than 0')
+      return
+    }
+
+    if (isNaN(protein) || protein < 0) {
+      setError('Protein cannot be negative')
+      return
+    }
+
+    if (isNaN(carbs) || carbs < 0) {
+      setError('Carbohydrates cannot be negative')
+      return
+    }
+
+    if (isNaN(fat) || fat < 0) {
+      setError('Fat cannot be negative')
+      return
+    }
+
     setSaving(true)
 
     try {
@@ -74,7 +104,7 @@ function Goals() {
   if (loading) {
     return (
       <main className="page-container">
-        <p>Loading nutrition goals...</p>
+        <p role="status" aria-live="polite">Loading nutrition goals...</p>
       </main>
     )
   }

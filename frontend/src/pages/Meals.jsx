@@ -472,11 +472,22 @@ function Meals() {
         return
       }
 
+      // Validate calories must be greater than 0
+      if (
+        customFood.calories === '' ||
+        !Number.isFinite(
+          Number(customFood.calories)
+        ) ||
+        Number(customFood.calories) <= 0
+      ) {
+        setError(
+          'Calories must be greater than zero.'
+        )
+
+        return
+      }
+
       const fields = [
-        [
-          'Calories',
-          customFood.calories
-        ],
         [
           'Protein',
           customFood.protein
@@ -939,10 +950,6 @@ function Meals() {
         const nutrition =
           [
             [
-              'Calories',
-              calories
-            ],
-            [
               'Protein',
               protein
             ],
@@ -955,6 +962,21 @@ function Meals() {
               fat
             ]
           ]
+
+        // Validate calories must be greater than 0
+        if (
+          calories === '' ||
+          !Number.isFinite(
+            Number(calories)
+          ) ||
+          Number(calories) <= 0
+        ) {
+          setError(
+            'Calories must be greater than zero.'
+          )
+
+          return
+        }
 
         for (
           const [

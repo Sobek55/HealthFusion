@@ -74,6 +74,33 @@ function Profile() {
 
     setMessage('')
     setError('')
+
+    // Validation checks
+    const age = parseInt(formData.age, 10)
+    const height = parseFloat(formData.height)
+    const weight = parseFloat(formData.weight)
+    const targetWeight = parseFloat(formData.targetWeight)
+
+    if (formData.age && (isNaN(age) || age < 1 || age > 120)) {
+      setError('Age must be between 1 and 120')
+      return
+    }
+
+    if (formData.height && (isNaN(height) || height <= 0)) {
+      setError('Height must be a positive number')
+      return
+    }
+
+    if (formData.weight && (isNaN(weight) || weight <= 0)) {
+      setError('Current weight must be a positive number')
+      return
+    }
+
+    if (formData.targetWeight && (isNaN(targetWeight) || targetWeight <= 0)) {
+      setError('Target weight must be a positive number')
+      return
+    }
+
     setSaving(true)
 
     try {

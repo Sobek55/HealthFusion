@@ -19,6 +19,22 @@ function Register() {
 
     setError('')
 
+    // Sanitize inputs
+    const trimmedFirstName = firstName.trim()
+    const trimmedLastName = lastName.trim()
+    const trimmedEmail = email.trim()
+
+    // Validate names are not empty or whitespace-only
+    if (!trimmedFirstName) {
+      setError('First name cannot be empty')
+      return
+    }
+
+    if (!trimmedLastName) {
+      setError('Last name cannot be empty')
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -33,9 +49,9 @@ function Register() {
 
     try {
       await registerUser({
-        firstName,
-        lastName,
-        email,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: trimmedEmail,
         password,
         passwordHint
       })
