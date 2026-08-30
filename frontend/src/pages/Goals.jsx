@@ -48,6 +48,9 @@ function Goals() {
       ...current,
       [name]: value
     }))
+
+    setMessage('')
+    setError('')
   }
 
   const handleSubmit = async (event) => {
